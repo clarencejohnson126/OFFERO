@@ -1,0 +1,4 @@
+# Offero — Supabase-Projektbindung (Dokumentation).
+# Projekt ist ein vom Nutzer freigegebenes Dummy-Projekt in einer EU-Region (Constitution Art. III).
+# Offero-Tabellen liegen mit Präfix `offero_` im public-Schema (geteiltes Projekt mit einer Alt-App; ADR 0006).
+project_id = "nlvlwrhayrvberdyjgjx"

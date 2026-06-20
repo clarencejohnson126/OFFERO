@@ -1,0 +1,5 @@
+{
+  "//": "Erbt lib:['ES2022'] ohne DOM aus der Base — window/document sind hier Typfehler (Mobile-Guard).",
+  "extends": "../../tsconfig.base.json",
+  "include": ["src", "test"]
+}

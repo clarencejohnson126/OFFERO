@@ -1,0 +1,6 @@
+{
+  "//": "Root-Editor-Config. Build/Typecheck laufen pro Paket über Turbo (keine project references).",
+  "extends": "./tsconfig.base.json",
+  "include": [],
+  "exclude": ["node_modules", "**/dist", "**/.next", "**/.turbo"]
+}

@@ -1,0 +1,18 @@
+{
+  "//": "Projekt-gebundener Supabase-MCP für Offero (Pillar 5: Agentic Access ins Repo verdrahtet). Secret-frei: der PAT kommt aus der Umgebung (SUPABASE_ACCESS_TOKEN), nicht aus dieser Datei. Aktiviert sich beim nächsten Session-Start (Claude Code fragt nach Freigabe). Pinned auf das Offero-Dummy-Projekt, damit der Agent keinen anderen Projekten schaden kann.",
+  "mcpServers": {
+    "supabase-offero": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@supabase/mcp-server-supabase@latest",
+        "--project-ref",
+        "nlvlwrhayrvberdyjgjx"
+      ],
+      "env": {
+        "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
+      }
+    }
+  }
+}

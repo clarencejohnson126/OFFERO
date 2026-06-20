@@ -1,0 +1,23 @@
+:root {
+  --ink: #0a0d14;
+  --muted: #6b7280;
+  --brand: #0030ff;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Inter, system-ui, -apple-system, sans-serif;
+  color: var(--ink);
+  background: #ffffff;
+  line-height: 1.5;
+}
+
+a {
+  color: var(--brand);
+}

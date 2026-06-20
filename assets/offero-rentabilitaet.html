@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Offero · Rentabilität</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0b1020; --panel:#121a30; --panel2:#0f1730; --line:#26304d;
+    --txt:#e8ecf6; --mut:#9aa6c4; --soft:#6b7799;
+    --green:#10b981; --green2:#34d399; --amber:#f59e0b; --indigo:#6366f1; --rose:#fb7185;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{background:#070b16;}
+  body{font-family:"Inter",system-ui,sans-serif;color:var(--txt);width:1240px;}
+  .wrap{padding:46px 54px 40px;background:radial-gradient(1200px 600px at 80% -10%, #16224a 0%, transparent 60%), #0b1020;}
+  h1,h2,h3,.dsp{font-family:"Manrope",sans-serif;}
+  .eyebrow{font-size:12px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--green2);}
+  .brand{display:flex;align-items:baseline;gap:14px;margin-top:6px;}
+  .brand .logo{font-size:40px;font-weight:800;letter-spacing:-.02em;background:linear-gradient(92deg,#fff,#bcdfff);-webkit-background-clip:text;background-clip:text;color:transparent;}
+  .brand .sub{font-size:16px;color:var(--mut);font-weight:500;}
+  .lead{margin-top:10px;color:var(--mut);font-size:13.5px;max-width:86ch;line-height:1.6;}
+
+  /* KPI row */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:26px;}
+  .kpi{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:16px;padding:18px 18px 16px;position:relative;overflow:hidden;}
+  .kpi::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--green),var(--indigo));}
+  .kpi .v{font-family:"Manrope";font-size:30px;font-weight:800;letter-spacing:-.01em;}
+  .kpi .v.green{color:var(--green2);} .kpi .v.amber{color:var(--amber);} .kpi .v.indigo{color:#a5b4fc;}
+  .kpi .l{font-size:12px;color:var(--mut);margin-top:4px;line-height:1.4;}
+
+  .grid{display:grid;grid-template-columns:1.15fr .85fr;gap:20px;margin-top:24px;}
+  .card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:18px;padding:22px 22px 20px;}
+  .card h2{font-size:17px;font-weight:800;letter-spacing:-.01em;}
+  .card .cap{font-size:12px;color:var(--soft);margin-top:2px;margin-bottom:14px;}
+
+  /* cost stack bars */
+  .stack{display:flex;flex-direction:column;gap:10px;margin-top:4px;}
+  .row{display:grid;grid-template-columns:150px 1fr 58px;align-items:center;gap:12px;}
+  .row .nm{font-size:12.5px;color:var(--txt);}
+  .row .nm small{color:var(--soft);display:block;font-size:10.5px;}
+  .bar{height:14px;border-radius:7px;background:#0c1430;border:1px solid var(--line);overflow:hidden;}
+  .bar i{display:block;height:100%;border-radius:7px;}
+  .row .amt{text-align:right;font-family:"Manrope";font-weight:700;font-size:13px;}
+  .tot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;padding-top:12px;border-top:1px dashed var(--line);}
+  .tot .a{font-family:"Manrope";font-weight:800;font-size:20px;color:var(--green2);}
+  .tot .lbl{font-size:12px;color:var(--mut);}
+  .note{font-size:11px;color:var(--soft);margin-top:8px;line-height:1.5;}
+
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th,td{text-align:left;padding:8px 9px;border-bottom:1px solid var(--line);}
+  th{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--soft);font-weight:700;}
+  td.r,th.r{text-align:right;font-variant-numeric:tabular-nums;}
+  .pill{display:inline-block;padding:2px 8px;border-radius:999px;font-size:11px;font-weight:700;font-family:"Manrope";}
+  .pm-hi{background:rgba(16,185,129,.16);color:var(--green2);}
+  .pm-mid{background:rgba(99,102,241,.18);color:#a5b4fc;}
+  .pm-lo{background:rgba(245,158,11,.16);color:var(--amber);}
+  .tname{font-weight:700;color:#fff;font-family:"Manrope";}
+  .tprice{font-family:"Manrope";font-weight:800;}
+
+  /* scenarios */
+  .scn{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:6px;}
+  .scol{background:#0c1430;border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .scol.base{border-color:#2c6cf6;box-shadow:0 0 0 1px #2c6cf6 inset, 0 14px 34px -18px #2c6cf6;}
+  .scol .tag{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);}
+  .scol .cust{font-family:"Manrope";font-size:22px;font-weight:800;margin-top:2px;}
+  .scol .cust small{font-size:12px;color:var(--soft);font-weight:500;}
+  .ln{display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-bottom:1px solid #131c38;}
+  .ln:last-of-type{border-bottom:none;}
+  .ln .k{color:var(--mut);} .ln .vv{font-variant-numeric:tabular-nums;font-weight:600;}
+  .ln.neg .vv{color:#fca5a5;}
+  .profit{margin-top:10px;background:linear-gradient(92deg,rgba(16,185,129,.15),rgba(16,185,129,.04));border:1px solid rgba(16,185,129,.35);border-radius:10px;padding:9px 12px;display:flex;justify-content:space-between;align-items:center;}
+  .profit .k{font-size:11px;color:var(--green2);font-weight:700;text-transform:uppercase;letter-spacing:.06em;}
+  .profit .vv{font-family:"Manrope";font-weight:800;font-size:18px;color:var(--green2);}
+
+  .foot{margin-top:24px;display:flex;justify-content:space-between;gap:20px;align-items:flex-start;}
+  .foot .ass{font-size:10.5px;color:var(--soft);line-height:1.6;max-width:74ch;}
+  .foot .ass b{color:var(--mut);}
+  .tag2{font-size:11px;color:var(--soft);font-family:"Manrope";font-weight:700;letter-spacing:.04em;}
+  .sectitle{font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--soft);margin:30px 0 4px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="eyebrow">Geschäftsmodell · Unit Economics</div>
+  <div class="brand"><span class="logo">Offero</span><span class="sub">maßgeschneiderte Bewerbungs-Websites · Rentabilität auf einen Blick</span></div>
+  <div class="lead">Pro Stelle eine eigene, auf die Anzeige zugeschnittene Bewerbungs-Website (+ optional PDF, KI-Bilder, 60-Sekunden-Video). Verkauft in Paketen & Credits. Der größte variable Kostenblock — der KI-Call — kostet nur Cents; der Engpass ist Akquise, nicht die Stückkosten.</div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v green">~76 %</div><div class="l">Bruttomarge (geblendet, nach variablen Kosten + Zahlungsgebühr)</div></div>
+    <div class="kpi"><div class="v amber">€0,70</div><div class="l">Variable Vollkosten je Bewerbung (Video = nur Lambda-Compute)</div></div>
+    <div class="kpi"><div class="v indigo">~7</div><div class="l">Pro/Abo-Kunden/Monat = Break-even (Fix ~€150 inkl. Remotion-Sockel)</div></div>
+    <div class="kpi"><div class="v">€92</div><div class="l">Remotion-Lizenz-Sockel/Monat ($100 Min.) — fix, sobald Video live</div></div>
+  </div>
+
+  <div class="grid">
+    <!-- cost stack -->
+    <div class="card">
+      <h2>Stückkosten je Bewerbung</h2>
+      <div class="cap">Vollausstattung (Website + PDF + 4 Bilder + 60s-Video). Balken = Anteil an €0,70. Remotion-Lizenz NICHT hier — die ist ein Fixsockel (rechts).</div>
+      <div class="stack">
+        <div class="row"><div class="nm">4 KI-Bilder <small>Gemini 3 Pro Image</small></div><div class="bar"><i style="width:29%;background:linear-gradient(90deg,#6366f1,#818cf8)"></i></div><div class="amt">€0,20</div></div>
+        <div class="row"><div class="nm">KI-Text <small>Sonnet 4.6 + Caching</small></div><div class="bar"><i style="width:21%;background:linear-gradient(90deg,#10b981,#34d399)"></i></div><div class="amt">€0,15</div></div>
+        <div class="row"><div class="nm">60s-Video <small>Remotion-Lambda-Compute</small></div><div class="bar"><i style="width:21%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></i></div><div class="amt">€0,15</div></div>
+        <div class="row"><div class="nm">Feinschliff-Puffer <small>Edits / Re-Rolls</small></div><div class="bar"><i style="width:19%;background:linear-gradient(90deg,#475569,#64748b)"></i></div><div class="amt">€0,13</div></div>
+        <div class="row"><div class="nm">PDF-Export <small>Headless-Render</small></div><div class="bar"><i style="width:7%;background:linear-gradient(90deg,#0ea5e9,#38bdf8)"></i></div><div class="amt">€0,05</div></div>
+        <div class="row"><div class="nm">Hosting / Storage <small>Multi-Tenant, marginal</small></div><div class="bar"><i style="width:3%;background:#334155"></i></div><div class="amt">€0,02</div></div>
+      </div>
+      <div class="tot"><span class="lbl">Variable Vollkosten je Bewerbung (mit Video)</span><span class="a">€0,70</span></div>
+      <div class="note">Website-only (Starter-Paket) ohne Bilder/Video: <b style="color:#cbd5e1">≈ €0,25</b> je Bewerbung. Feinschliff-Edits kosten nur einen Text-Re-Gen (~€0,02–0,05) und sind großzügig gratis. <b style="color:#fbbf24">Video-Lizenz separat:</b> Remotion „Automators" $0,01/Render, aber <b style="color:#fbbf24">$100/Mt Minimum</b> (= 10.000 Renders inkl.) → Fixsockel, nicht variabel.</div>
+    </div>
+
+    <!-- LLM pricing -->
+    <div class="card">
+      <h2>Warum die Stückkosten so klein sind</h2>
+      <div class="cap">KI-Preise pro 1 Mio. Tokens. Eine Bewerbung ≈ 10k In / 8k Out.</div>
+      <table>
+        <tr><th>Modell</th><th class="r">Input</th><th class="r">Output</th></tr>
+        <tr><td>Opus 4.8</td><td class="r">$5</td><td class="r">$25</td></tr>
+        <tr><td><b style="color:#cbd5e1">Sonnet 4.6</b> · Standard</td><td class="r">$3</td><td class="r">$15</td></tr>
+        <tr><td>Haiku 4.5</td><td class="r">$1</td><td class="r">$5</td></tr>
+        <tr><td>Prompt-Caching</td><td class="r" colspan="2" style="text-align:right">Read ~0,1× · 90 % günstiger</td></tr>
+      </table>
+      <div class="note" style="margin-top:13px">Mit <b style="color:#cbd5e1">Sonnet + Caching</b> des Template-Prompts landet eine komplette Bewerbung bei <b style="color:#34d399">~€0,15</b> Text. Bilder/Video sind die einzigen spürbaren variablen Kosten — deshalb als kostenpflichtige Add-ons.</div>
+      <div class="tag2" style="margin-top:14px;color:#64748b">Zahlungsgebühr Stripe ≈ 3 % + €0,30 je Transaktion · in Margen unten eingerechnet.</div>
+    </div>
+  </div>
+
+  <div class="sectitle">Video-Strategie · der Remotion-Sockel</div>
+  <div class="card" style="margin-top:6px;padding:18px 22px">
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:18px;align-items:start">
+      <div>
+        <div class="tag2" style="color:#fbbf24">PHASE 1 · ANLAUF</div>
+        <div style="font-size:13px;font-weight:700;margin-top:4px;color:#fff;font-family:Manrope">Lite-Video (FFmpeg)</div>
+        <div class="note" style="margin-top:6px">Ken-Burns über die 4 KI-Bilder + Text + Musik. <b style="color:#34d399">€0 Lizenz</b>, ~€0,02 Compute, <b style="color:#34d399">kein $100-Minimum</b>. Trägt die Premium-Tiers, bis genug Video-Kunden da sind.</div>
+      </div>
+      <div>
+        <div class="tag2" style="color:#7aa2ff">SCHWELLE</div>
+        <div style="font-size:13px;font-weight:700;margin-top:4px;color:#fff;font-family:Manrope">~7 Video-Kunden/Mt</div>
+        <div class="note" style="margin-top:6px">Ab hier deckt der DB der Pro/Abo-Video-Kunden den <b style="color:#cbd5e1">€92/Mt Remotion-Sockel</b>. Darunter subventioniert man die Lizenz — also erst dann das volle Remotion-Video freischalten.</div>
+      </div>
+      <div>
+        <div class="tag2" style="color:#34d399">PHASE 2 · SKALIERUNG</div>
+        <div style="font-size:13px;font-weight:700;margin-top:4px;color:#fff;font-family:Manrope">Remotion-Lambda-Video</div>
+        <div class="note" style="margin-top:6px">Animiert, datengetrieben, 60s. Sockel deckt <b style="color:#cbd5e1">10.000 Renders/Mt</b>; darüber nur €0,0092/Render. Compute ~€0,15/Video (vor Launch mit Remotion-Kostenrechner messen).</div>
+      </div>
+    </div>
+    <div class="note" style="margin-top:14px;border-top:1px dashed var(--line);padding-top:10px">Offero = „prompt-to-video"-SaaS → fällt unter Remotions <b style="color:#cbd5e1">Company-/Automator-Lizenz</b> (nicht Free), sobald kommerziell. Solo evtl. noch Free-eligible (≤3 Personen) — Grenzfall vor Launch direkt mit Remotion klären, konservativ mit dem $100-Sockel planen.</div>
+  </div>
+
+  <div class="sectitle">Pakete & Margen</div>
+  <div class="card" style="margin-top:6px;padding-top:16px">
+    <table>
+      <tr>
+        <th>Paket</th><th>Enthalten</th><th class="r">Preis</th><th class="r">Var. Kosten</th><th class="r">DB *</th><th class="r">Marge</th>
+      </tr>
+      <tr>
+        <td class="tname">Free</td><td>1 Bewerbung (Badge), kein Bild/Video</td>
+        <td class="r tprice">0 €</td><td class="r">€0,30</td><td class="r">—</td><td class="r"><span class="pill pm-mid">Akquise</span></td>
+      </tr>
+      <tr>
+        <td class="tname">Starter</td><td>5 Bewerbungen · PDF · ∞ Feinschliff · 3 Re-Rolls</td>
+        <td class="r tprice">9,99 €</td><td class="r">€2,25</td><td class="r">€7,14</td><td class="r"><span class="pill pm-hi">~72 %</span></td>
+      </tr>
+      <tr>
+        <td class="tname">Plus</td><td>12 · + KI-Bilder · + Firmen-Branding · Premium-Templates</td>
+        <td class="r tprice">19,99 €</td><td class="r">€7,40</td><td class="r">€11,69</td><td class="r"><span class="pill pm-mid">~58 %</span></td>
+      </tr>
+      <tr>
+        <td class="tname">Pro</td><td>25 · + 60s-Video · + Custom Domain · + Recruiter-Radar</td>
+        <td class="r tprice">39,99 €</td><td class="r">€15,00</td><td class="r">€23,49</td><td class="r"><span class="pill pm-mid">~59 %</span></td>
+      </tr>
+      <tr>
+        <td class="tname">Job-Hunt Abo</td><td>unbegrenzt (Fair Use) · Bilder · Videos · Radar — <b style="color:#9aa6c4">wiederkehrend</b></td>
+        <td class="r tprice">14,99 €<small style="color:#6b7799">/Mt</small></td><td class="r">~€7,50</td><td class="r">€6,74</td><td class="r"><span class="pill pm-lo">~45 %</span></td>
+      </tr>
+    </table>
+    <div class="note">* DB = Deckungsbeitrag (Preis − variable Kosten − Zahlungsgebühr). Top-ups: +5 Bewerbungen 3,99 € · +1 Video 3,99 € · Custom Domain 9,99 €. Recruiter-Radar wird für alle geloggt (Kosten ~0 €), aber nur Pro/Abo angezeigt → eingebauter Upsell.</div>
+  </div>
+
+  <div class="sectitle">Monats-Szenarien</div>
+  <div class="scn">
+    <div class="scol">
+      <div class="tag">Anlauf</div>
+      <div class="cust">50 <small>zahlende Kunden / Monat</small></div>
+      <div style="margin-top:10px">
+        <div class="ln"><span class="k">Umsatz (ARPU €22)</span><span class="vv">€1.100</span></div>
+        <div class="ln neg"><span class="k">− COGS (€4,00)</span><span class="vv">−€200</span></div>
+        <div class="ln neg"><span class="k">− Zahlungsgebühren</span><span class="vv">−€48</span></div>
+        <div class="ln neg"><span class="k">− Fix: Infra €60 + Remotion €92</span><span class="vv">−€152</span></div>
+      </div>
+      <div class="profit"><span class="k">Gewinn</span><span class="vv">€700</span></div>
+    </div>
+    <div class="scol base">
+      <div class="tag" style="color:#7aa2ff">Basis</div>
+      <div class="cust">300 <small>zahlende Kunden / Monat</small></div>
+      <div style="margin-top:10px">
+        <div class="ln"><span class="k">Umsatz (ARPU €22)</span><span class="vv">€6.600</span></div>
+        <div class="ln neg"><span class="k">− COGS (€4,00)</span><span class="vv">−€1.200</span></div>
+        <div class="ln neg"><span class="k">− Zahlungsgebühren</span><span class="vv">−€288</span></div>
+        <div class="ln neg"><span class="k">− Fix: Infra €120 + Remotion €92</span><span class="vv">−€212</span></div>
+      </div>
+      <div class="profit"><span class="k">Gewinn</span><span class="vv">€4.900</span></div>
+    </div>
+    <div class="scol">
+      <div class="tag">Wachstum</div>
+      <div class="cust">1.500 <small>zahlende Kunden / Monat</small></div>
+      <div style="margin-top:10px">
+        <div class="ln"><span class="k">Umsatz (ARPU €22)</span><span class="vv">€33.000</span></div>
+        <div class="ln neg"><span class="k">− COGS (€4,00)</span><span class="vv">−€6.000</span></div>
+        <div class="ln neg"><span class="k">− Zahlungsgebühren</span><span class="vv">−€1.440</span></div>
+        <div class="ln neg"><span class="k">− Fix: Infra €350 + Remotion €100*</span><span class="vv">−€450</span></div>
+      </div>
+      <div class="profit"><span class="k">Gewinn</span><span class="vv">€25.110</span></div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <div class="ass">
+      <b>Annahmen:</b> ARPU €22 (Mix aus Starter/Plus/Pro/Abo) · geblendete variable Kosten €4,00/Kunde · Zahlungsgebühr ~3 % + €0,30 · Fixkosten = Infra (Vercel + Supabase + Domains) €60→€350 <b>+ Remotion-Lizenz-Sockel €92/Mt</b> (Automators, $100 Min., deckt 10.000 Renders; *bei Wachstum leichte Render-Überschreitung @ €0,0092). Netto-Marge steigt mit Skalierung, weil Fixkosten sich verteilen. KI-Preise: Claude (Opus 4.8 / Sonnet 4.6 / Haiku 4.5), Stand aktuell. Video: Remotion-Lambda-Compute ~€0,15/Video — vor Launch mit Remotion-Kostenrechner messen; Lite-Video (FFmpeg) als sockelfreie Anlauf-Alternative. Gemini-Kosten geschätzt. Keine Steuern/Marketing-CAC enthalten. Modell, keine Garantie.
+    </div>
+    <div class="tag2">OFFERO · interne Kalkulation</div>
+  </div>
+
+</div>
+</body>
+</html>

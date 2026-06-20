@@ -1,0 +1,8 @@
+{
+  "//": "Client darf DOM-Lib für fetch/Response-Typen nutzen (Laufzeit-fetch ist universell: Browser, Node, RN).",
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "lib": ["ES2022", "DOM", "DOM.Iterable"]
+  },
+  "include": ["src"]
+}

@@ -1,0 +1,19 @@
+{
+  "name": "@offero/config",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Geteilte ESLint-/Prettier-Presets inkl. Mobile-Guard für packages/core.",
+  "exports": {
+    "./eslint": "./eslint/index.mjs"
+  },
+  "dependencies": {
+    "@eslint/js": "^9.17.0",
+    "globals": "^15.14.0",
+    "typescript-eslint": "^8.18.0"
+  },
+  "peerDependencies": {
+    "eslint": "^9",
+    "typescript": "^5"
+  }
+}

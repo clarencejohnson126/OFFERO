@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnpm-store/
+
+# Build / Next.js
+.next/
+dist/
+out/
+build/
+.turbo/
+
+# Env & secrets (NIE committen — Constitution Art. III)
+.env
+.env.*
+!.env.example
+
+# Supabase
+.supabase/
+
+# OS / Editor
+.DS_Store
+*.log
+.vscode/
+.idea/
+
+# Generierte Medien / temporär
+*.tmp
+/tmp/
+assets/**/*.mp4

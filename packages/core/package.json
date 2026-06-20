@@ -1,0 +1,30 @@
+{
+  "name": "@offero/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Framework-neutrale Domänenlogik: Ports, Entities, KI-Routing, Billing, Pipeline. KEIN Next/React/DOM.",
+  "exports": {
+    ".": "./src/index.ts",
+    "./domain": "./src/domain/index.ts",
+    "./ports": "./src/ports/index.ts",
+    "./ai": "./src/ai/index.ts",
+    "./billing": "./src/billing/index.ts",
+    "./tenancy": "./src/tenancy/index.ts",
+    "./generation": "./src/generation/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@offero/config": "workspace:*",
+    "eslint": "^9.17.0",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.8"
+  }
+}

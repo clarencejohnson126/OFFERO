@@ -3,6 +3,7 @@ export * from './enums';
 export * from './errors';
 export * from './content-schema';
 export * from './profile-schema';
+export * from './cv-schema';
 export type {
   Profile,
   Application,

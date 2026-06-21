@@ -11,6 +11,7 @@
     "lint": "eslint ."
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.105.0",
     "@offero/api-client": "workspace:*",
     "@offero/core": "workspace:*",
     "@offero/ui": "workspace:*",

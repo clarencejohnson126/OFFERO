@@ -1,7 +1,9 @@
-// Typografie-Tokens (plattform-neutral).
+// Typografie-Tokens (plattform-neutral). Editorial Premium (ADR 0008): Serif-Display für
+// Headlines, klarer Sans für UI/Fließtext.
 export const typography = {
   fontFamily: {
-    sans: 'Inter, system-ui, -apple-system, sans-serif',
+    serif: 'Fraunces, Georgia, "Times New Roman", serif', // Display/Headlines
+    sans: 'Inter, system-ui, -apple-system, sans-serif', // UI & Fließtext
     mono: 'ui-monospace, SFMono-Regular, Menlo, monospace',
   },
   fontSize: {

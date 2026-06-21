@@ -27,3 +27,8 @@ build/
 *.tmp
 /tmp/
 assets/**/*.mp4
+
+# Playwright/Screenshots (dev)
+.playwright-mcp/
+/*.png
+*.tsbuildinfo

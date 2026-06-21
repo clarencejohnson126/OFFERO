@@ -27,7 +27,9 @@ const PLUS_FEATURES = [...STARTER_FEATURES, 'images', 'branding', 'premium_templ
 const PRO_FEATURES = [...PLUS_FEATURES, 'video', 'custom_domain', 'radar'] as const;
 
 export const PLAN_CATALOG: Record<Tier, PlanDef> = {
-  free: { id: 'free', priceCents: 0, recurring: false, credits: 1, freeRerolls: 3, features: ['text', 'pdf'] },
+  // Free = One-Shot-Kostprobe: 1 Generierung, KEINE Edits, KEINE Re-Rolls (kein unlimited_refine,
+  // freeRerolls 0). Iteration ist der erste Upgrade-Grund (ADR 0009 / pricing.md).
+  free: { id: 'free', priceCents: 0, recurring: false, credits: 1, freeRerolls: 0, features: ['text', 'pdf'] },
   starter: { id: 'starter', priceCents: 999, recurring: false, credits: 5, freeRerolls: 3, features: STARTER_FEATURES },
   plus: { id: 'plus', priceCents: 1999, recurring: false, credits: 12, freeRerolls: 3, features: PLUS_FEATURES },
   pro: { id: 'pro', priceCents: 3999, recurring: false, credits: 25, freeRerolls: 3, features: PRO_FEATURES },

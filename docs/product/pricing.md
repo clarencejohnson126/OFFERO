@@ -22,11 +22,16 @@ den Wert/Preis stufenweise.
 
 So erreicht der Nutzer immer ein Ergebnis, das ihm gefällt, ohne sich „abgezockt" zu fühlen.
 
+> **Free ist die Ausnahme:** eine **One-Shot-Kostprobe** — genau *eine* Generierung, **keine** Feinschliff-Edits
+> und **keine** Re-Rolls. Das Drei-Stufen-Modell (gratis Feinschliff, 3 Re-Rolls) gilt **ab Starter**. So
+> bleibt Art. I.3 gewahrt (im bezahlten Kontext kosten Edits keine Extra-Credits) und Iteration wird der
+> erste, ehrliche Upgrade-Grund (ADR 0009).
+
 ## Pakete (Arbeitsstand)
 
 | Paket | Preis | Enthalten | Kern-Hook |
 |---|---|---|---|
-| **Free** | 0 € | 1 Bewerbung (mit dezentem Badge), kein Bild/Video | Einstieg, Akquise |
+| **Free** | 0 € | **1 Bewerbung, One-Shot — kein Feinschliff, kein Re-Roll** (mit dezentem Badge), kein Bild/Video | Einstieg, Akquise |
 | **Starter** | **9,99 €** | 5 Bewerbungen · PDF · ∞ Feinschliff · 3 Re-Rolls | bezahlbarer Volumeneinstieg |
 | **Plus** | **19,99 €** | 12 · + KI-Bilder · + Firmen-Branding · Premium-Templates | visuelle Aufwertung |
 | **Pro** | **39,99 €** | 25 · + 60s-Video · + Custom Domain · + Recruiter-Radar | das volle Erlebnis |

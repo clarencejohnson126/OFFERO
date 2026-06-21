@@ -27,3 +27,4 @@ schreibt man ein **neues** ADR, das das alte als „Superseded by 000X" markiert
 - [0006 — Supabase-Schema-Konventionen](./0006-schema-konventionen.md) · Accepted
 - [0007 — Backend bleibt TypeScript (Python optional als Adapter)](./0007-backend-bleibt-typescript.md) · Accepted
 - [0008 — Design-Richtung: zwei Oberflächen, Cockpit „Editorial Premium"](./0008-design-direction.md) · Accepted
+- [0009 — Trust-Funnel: value-first, keine Dark Patterns](./0009-trust-funnel.md) · Accepted

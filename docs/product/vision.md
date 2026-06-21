@@ -50,10 +50,10 @@ eine konkrete Stelle bewirbt** — Freelancer, Fach-/Führungskräfte, Berufsein
   Bewerbung angeschaut wurde. Kostet uns ~0 €, weckt aber Appetit.
 - **Multimodal**: Text + Bild + Video aus einer Pipeline.
 
-## Nordstern-Metrik (🔲 TO DECIDE)
+## Nordstern-Metrik — ENTSCHIEDEN (ADR 0009)
 
-Vorschlag: **Anzahl abgeschickter/geteilter Bewerbungen pro Woche** (echte Nutzung, nicht nur
-Generierungen). Alternativen: zahlende Wiederkehrer, Antwortquote (falls messbar via Radar).
+**Geteilte/exportierte Bewerbungen pro Woche** (echte Nutzung, nicht nur Generierungen). Festgelegt im
+Trust-Funnel: [`funnel.md`](./funnel.md) · [ADR 0009](../decisions/0009-trust-funnel.md).
 
 ## Was Offero (vorerst) NICHT ist
 

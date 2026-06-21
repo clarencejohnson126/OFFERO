@@ -15,9 +15,12 @@ function makeServiceClient() {
   });
 }
 
-let cached: ReturnType<typeof makeServiceClient> | null = null;
+/** Konkreter Client-Typ (Schema offero) — Adapter konsumieren ihn statt des Default-SupabaseClient. */
+export type DbClient = ReturnType<typeof makeServiceClient>;
 
-export function supabaseService() {
+let cached: DbClient | null = null;
+
+export function supabaseService(): DbClient {
   if (!cached) {
     cached = makeServiceClient();
   }

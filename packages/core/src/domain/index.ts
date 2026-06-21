@@ -2,6 +2,7 @@ export type { Json } from './json';
 export * from './enums';
 export * from './errors';
 export * from './content-schema';
+export * from './profile-schema';
 export type {
   Profile,
   Application,

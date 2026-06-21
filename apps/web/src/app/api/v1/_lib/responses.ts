@@ -15,6 +15,13 @@ export function handleError(e: unknown): NextResponse {
   if (e instanceof DomainError) {
     return NextResponse.json(e.toResponse(), { status: e.status });
   }
+  // zod-Validierungsfehler → 422 (ohne zod-Import: via name).
+  if (e && typeof e === 'object' && (e as { name?: string }).name === 'ZodError') {
+    return NextResponse.json(
+      { error: { code: 'VALIDATION', message: 'Ungültige Eingabe.' } },
+      { status: 422 },
+    );
+  }
   const message = e instanceof Error ? e.message : 'Interner Fehler';
   return NextResponse.json({ error: { code: 'INTERNAL', message } }, { status: 500 });
 }

@@ -68,8 +68,8 @@ user ──1:N── application ──1:N── generation_version
 
 ## Umsetzungsstand (M2)
 
-Implementiert als versionierte Migrationen in `infra/supabase/migrations/` mit Präfix **`offero_`**
-im `public`-Schema (geteiltes Projekt, [ADR 0006](../decisions/0006-schema-konventionen.md)). RLS aktiv,
+Implementiert als versionierte Migrationen in `infra/supabase/migrations/` im **dedizierten Schema
+`offero`** (getrennt von den Alt-Apps neatlify/permit_watchdog, [ADR 0006](../decisions/0006-schema-konventionen.md)). RLS aktiv,
 Credit-Logik als idempotente RPCs (`offero_spend_credits`/`offero_grant_credits`), User-Init lazy via
 `offero_init_user`. Gegen die echte DB verifiziert.
 

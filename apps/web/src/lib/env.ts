@@ -8,10 +8,12 @@ export const publicEnv = {
   rootDomain: process.env.NEXT_PUBLIC_ROOT_DOMAIN ?? 'offero.app',
 };
 
+/** Dediziertes Postgres-Schema für alle Offero-Objekte (getrennt von der Alt-App, ADR 0006). */
+export const OFFERO_SCHEMA = process.env.SUPABASE_DB_SCHEMA ?? 'offero';
+
 export interface ServerEnv {
   serviceRoleKey: string;
-  /** Offero-Tabellen liegen mit Präfix im public-Schema (geteiltes Projekt, ADR 0006). */
-  tablePrefix: string;
+  dbSchema: string;
   anthropicApiKey: string;
   geminiApiKey: string;
   stripeSecretKey: string;
@@ -25,7 +27,7 @@ export function serverEnv(): ServerEnv {
   }
   return {
     serviceRoleKey,
-    tablePrefix: process.env.OFFERO_TABLE_PREFIX ?? 'offero_',
+    dbSchema: OFFERO_SCHEMA,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
     geminiApiKey: process.env.GEMINI_API_KEY ?? '',
     stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',

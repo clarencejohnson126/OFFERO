@@ -1,11 +1,12 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
-import { publicEnv } from './env';
+import { OFFERO_SCHEMA, publicEnv } from './env';
 
-// Anon-Client (RLS aktiv). Für token-gebundene Reads im Namen des Nutzers.
-export function supabaseAnon(accessToken?: string): SupabaseClient {
+// Anon-Client (RLS aktiv). Für token-gebundene Reads im Namen des Nutzers. Default-Schema: offero.
+export function supabaseAnon(accessToken?: string) {
   return createClient(publicEnv.supabaseUrl, publicEnv.supabaseAnonKey, {
     auth: { persistSession: false, autoRefreshToken: false },
+    db: { schema: OFFERO_SCHEMA },
     global: accessToken ? { headers: { Authorization: `Bearer ${accessToken}` } } : undefined,
   });
 }

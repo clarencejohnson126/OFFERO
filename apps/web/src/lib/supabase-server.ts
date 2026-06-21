@@ -1,18 +1,25 @@
 import 'server-only';
 
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient } from '@supabase/supabase-js';
 
 import { publicEnv, serverEnv } from './env';
 
 // Service-Role-Client: umgeht RLS. NUR serverseitig (server-only-Marker), nie im Client-Bundle.
 // Trägt u. a. den öffentlichen Tenant-Lesepfad (mit explizitem Status-Filter) und die RPCs.
-let cached: SupabaseClient | null = null;
+// Default-Schema: offero (ADR 0006).
+function makeServiceClient() {
+  const env = serverEnv();
+  return createClient(publicEnv.supabaseUrl, env.serviceRoleKey, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    db: { schema: env.dbSchema },
+  });
+}
 
-export function supabaseService(): SupabaseClient {
+let cached: ReturnType<typeof makeServiceClient> | null = null;
+
+export function supabaseService() {
   if (!cached) {
-    cached = createClient(publicEnv.supabaseUrl, serverEnv().serviceRoleKey, {
-      auth: { persistSession: false, autoRefreshToken: false },
-    });
+    cached = makeServiceClient();
   }
   return cached;
 }

@@ -17,11 +17,15 @@ import type {
 // 1:1 deckungsgleichen Output. Die Pipeline ruft nur complete() (kein stream()).
 
 const OPENAI_URL = 'https://api.openai.com/v1/chat/completions';
+const REQUEST_TIMEOUT_MS = 40_000; // unter Vercel maxDuration(60); hängende Anfrage → Retry statt Block
+const MAX_ATTEMPTS = 4; // 1 Versuch + 3 Retries
 
 /** Claude-Modell-ID (aus modelFor) → OpenAI-Äquivalent. Mechanisch=mini, Plan/Write=4o. */
 function mapModel(model: string): string {
   return /haiku/.test(model) ? 'gpt-4o-mini' : 'gpt-4o';
 }
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 
 // Grobe Preis-Schätzung (USD pro 1M Tokens) nur für Observability/Kostenzuordnung (Stopgap).
 const PRICING: Record<string, { in: number; out: number }> = {
@@ -49,16 +53,7 @@ export class OpenAIProvider implements AIProvider {
     // Anthropic-spezifisch und entfallen hier; das robuste extractJson im Aufrufer fängt Format-Slips.
     if (req.temperature !== undefined) body.temperature = req.temperature;
 
-    const res = await fetch(OPENAI_URL, {
-      method: 'POST',
-      headers: { authorization: `Bearer ${this.apiKey}`, 'content-type': 'application/json' },
-      body: JSON.stringify(body),
-    });
-    if (!res.ok) {
-      const t = await res.text().catch(() => '');
-      throw new Error(`OpenAI ${res.status}: ${t.slice(0, 240)}`);
-    }
-    const data = (await res.json()) as {
+    const data = (await this.postWithRetry(body)) as {
       choices?: { message?: { content?: string } }[];
       usage?: { prompt_tokens?: number; completion_tokens?: number };
     };
@@ -71,6 +66,46 @@ export class OpenAIProvider implements AIProvider {
     const p = PRICING[model] ?? { in: 2.5, out: 10 };
     const cents = ((usage.inputTokens * p.in + usage.outputTokens * p.out) / 1_000_000) * 100;
     return { text, usage, costCents: Math.round(cents * 1000) / 1000, modelUsed: model };
+  }
+
+  /**
+   * POST mit Robustheit: pro Versuch ein Timeout (AbortController); transiente Fehler
+   * (Netzwerk-/Abort-Fehler, HTTP 429, HTTP 5xx) werden mit exponentiellem Backoff erneut versucht.
+   * Genau das fehlte vorher: EIN transienter Fehler unter 8-facher Parallelität ließ eine Sektion
+   * still auf null fallen — traf es den Hero, brach die ganze Generierung ("kein Hero"). 4xx (außer
+   * 429) werden NICHT wiederholt (würde nicht helfen).
+   */
+  private async postWithRetry(body: Record<string, unknown>): Promise<unknown> {
+    let lastErr: Error = new Error('OpenAI: unbekannter Fehler');
+    for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt += 1) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), REQUEST_TIMEOUT_MS);
+      try {
+        const res = await fetch(OPENAI_URL, {
+          method: 'POST',
+          headers: { authorization: `Bearer ${this.apiKey}`, 'content-type': 'application/json' },
+          body: JSON.stringify(body),
+          signal: ctrl.signal,
+        });
+        if (res.ok) return await res.json();
+        const transient = res.status === 429 || res.status >= 500;
+        const t = await res.text().catch(() => '');
+        lastErr = new Error(`OpenAI ${res.status}: ${t.slice(0, 240)}`);
+        if (!transient) throw lastErr; // 4xx (Auth/Validierung) → kein Retry
+        // Retry-After respektieren (Sekunden), sonst exponentieller Backoff + Jitter.
+        const ra = Number(res.headers.get('retry-after'));
+        const backoff = Number.isFinite(ra) && ra > 0 ? ra * 1000 : 400 * 2 ** attempt + attempt * 150;
+        if (attempt < MAX_ATTEMPTS - 1) await sleep(backoff);
+      } catch (e) {
+        // Netzwerk-/Abort-Fehler (transient) → Backoff + Retry; harte Fehler (4xx oben) re-throwen.
+        lastErr = e instanceof Error ? e : new Error(String(e));
+        if (lastErr.message.startsWith('OpenAI 4')) throw lastErr;
+        if (attempt < MAX_ATTEMPTS - 1) await sleep(400 * 2 ** attempt + attempt * 150);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    throw lastErr;
   }
 
   // Streaming wird von der Pipeline nicht gebraucht (nutzt nur complete()).

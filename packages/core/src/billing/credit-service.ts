@@ -19,4 +19,14 @@ export class CreditService {
   async spendForReroll(userId: string, refId: string) {
     return this.billing.spendCredits({ userId, reason: 're_roll', refId, isReroll: true });
   }
+
+  /** Erstattung nach Pipeline-Fehler: bucht den abgezogenen Credit zurück. Idempotent über refId. */
+  async refundForGeneration(userId: string, genRef: string): Promise<void> {
+    await this.billing.grantCredits({
+      userId,
+      delta: 1,
+      reason: 'refund',
+      refId: `${genRef}:refund`,
+    });
+  }
 }

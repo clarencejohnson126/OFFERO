@@ -1,5 +1,8 @@
 # 0006 — Supabase-Schema-Konventionen (dediziertes `offero`-Schema, RLS, RPCs)
 
+> *Aktualisiert durch ADR 0011:* Punkt 4 (`init_user` legt frisches Free-Wallet **mit rerolls=3** an)
+> ist überholt. Free-Tier ist One-Shot → **0 Re-Rolls** (Migration `0005_free_tier_oneshot.sql`).
+
 - **Status:** Accepted
 - **Datum:** 2026-06-21
 - **Kontext:** Das bereitgestellte Supabase-Projekt (EU, vom Nutzer freigegeben, Ref `nlvlwrhayrvberdyjgjx`)

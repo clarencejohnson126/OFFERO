@@ -1,7 +1,8 @@
 // Konstante Unions statt Postgres-Enums (offen für Erweiterung, ADR 0006).
 // In der DB als Text + CHECK gespiegelt.
 
-export const TIERS = ['free', 'starter', 'plus', 'pro', 'subscription'] as const;
+// Abo (subscription) gestrichen (ADR 0012) — nur noch Einmal-Credit-Pakete.
+export const TIERS = ['free', 'starter', 'plus', 'pro'] as const;
 export type Tier = (typeof TIERS)[number];
 
 export type ApplicationStatus = 'draft' | 'generating' | 'ready' | 'shared' | 'archived';

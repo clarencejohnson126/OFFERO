@@ -33,14 +33,8 @@ export const PLAN_CATALOG: Record<Tier, PlanDef> = {
   starter: { id: 'starter', priceCents: 999, recurring: false, credits: 5, freeRerolls: 3, features: STARTER_FEATURES },
   plus: { id: 'plus', priceCents: 1999, recurring: false, credits: 12, freeRerolls: 3, features: PLUS_FEATURES },
   pro: { id: 'pro', priceCents: 3999, recurring: false, credits: 25, freeRerolls: 3, features: PRO_FEATURES },
-  subscription: {
-    id: 'subscription',
-    priceCents: 1499,
-    recurring: true,
-    credits: 'unlimited',
-    freeRerolls: Number.POSITIVE_INFINITY,
-    features: PRO_FEATURES,
-  },
+  // Abo gestrichen (ADR 0012): keine wiederkehrende Stufe mehr. Credits sind Einmalkauf, NICHT
+  // verfallend solange das Konto besteht (kein Ablauf-Feld im Wallet).
 };
 
 export function hasFeature(plan: Tier, f: Feature): boolean {

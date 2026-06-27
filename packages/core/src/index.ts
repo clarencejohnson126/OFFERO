@@ -7,3 +7,5 @@ export * from './tenancy';
 export * from './generation';
 export * from './media';
 export * from './services';
+export * from './job-extraction';
+export * from './eval';

@@ -36,8 +36,8 @@ async function main() {
   await admin.rpc('init_user', { p_user_id: userA });
   await admin.rpc('init_user', { p_user_id: userB });
   const { data: walletA } = await admin.from('credit_wallet').select('*').eq('user_id', userA).single();
-  check('init_user: Wallet balance=1, free_rerolls=3, plan=free',
-    walletA?.balance === 1 && walletA?.free_rerolls_remaining === 3 && walletA?.plan === 'free',
+  check('init_user: Wallet balance=1, free_rerolls=0, plan=free',
+    walletA?.balance === 1 && walletA?.free_rerolls_remaining === 0 && walletA?.plan === 'free',
     JSON.stringify({ balance: walletA?.balance, rr: walletA?.free_rerolls_remaining, plan: walletA?.plan }));
   const { data: profA } = await admin.from('profile').select('user_id').eq('user_id', userA).single();
   check('init_user: Profil angelegt', profA?.user_id === userA);
@@ -57,9 +57,16 @@ async function main() {
   const { error: insuffErr } = await admin.rpc('spend_credits', { p_user_id: userA, p_reason: 'generation', p_ref_id: 'gen-2', p_is_reroll: false });
   check('spend ohne Guthaben → INSUFFICIENT_CREDITS', insuffErr && String(insuffErr.message).includes('INSUFFICIENT_CREDITS'), insuffErr?.message ?? 'kein Fehler');
 
+  // Free-Tier ist One-Shot (ADR 0011): 0 Re-Rolls → ein Re-Roll kostet wie eine Generierung.
+  // Wallet A ist hier leer (gen-1 hat den 1 Credit verbraucht) → INSUFFICIENT_CREDITS.
+  const { error: rrEmptyErr } = await admin.rpc('spend_credits', { p_user_id: userA, p_reason: 're_roll', p_ref_id: 'rr-0', p_is_reroll: true });
+  check('free reroll ohne Guthaben → INSUFFICIENT_CREDITS (kein Gratis-Re-Roll)', rrEmptyErr && String(rrEmptyErr.message).includes('INSUFFICIENT_CREDITS'), rrEmptyErr?.message ?? 'kein Fehler');
+
+  // Mit Guthaben kostet ein Re-Roll im Free-Tier 1 Credit (charged=1).
+  await admin.rpc('grant_credits', { p_user_id: userA, p_delta: 1, p_reason: 'purchase', p_ref_id: 'topup-rr' });
   const { data: rr } = await admin.rpc('spend_credits', { p_user_id: userA, p_reason: 're_roll', p_ref_id: 'rr-1', p_is_reroll: true });
   const rrr = Array.isArray(rr) ? rr[0] : rr;
-  check('free reroll: charged=0, free_rerolls=2', rrr?.charged === 0 && rrr?.free_rerolls_remaining === 2, JSON.stringify(rrr));
+  check('free reroll: charged=1, free_rerolls bleibt 0', rrr?.charged === 1 && rrr?.free_rerolls_remaining === 0, JSON.stringify(rrr));
 
   const anonClient = createClient(url, anon, { auth: { persistSession: false }, db });
   const { data: anonWallet } = await anonClient.from('credit_wallet').select('*');

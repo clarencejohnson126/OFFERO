@@ -4,6 +4,7 @@ export * from './errors';
 export * from './content-schema';
 export * from './profile-schema';
 export * from './cv-schema';
+export * from './templates';
 export type {
   Profile,
   Application,

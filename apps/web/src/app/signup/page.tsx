@@ -1,9 +1,11 @@
 'use client';
 
+import { ArrowRight, Check, MailCheck } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
 
+import { Button, Input, Label } from '@/components/ui';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 
 export default function SignupPage() {
@@ -19,65 +21,97 @@ export default function SignupPage() {
     setBusy(true);
     setError('');
     const { data, error: err } = await supabaseBrowser().auth.signUp({ email, password });
-    setBusy(false);
     if (err) {
+      setBusy(false);
       setError(err.message);
       return;
     }
     if (data.session) {
+      setBusy(false);
       router.push('/dashboard');
-    } else {
-      setConfirmSent(true); // E-Mail-Bestätigung aktiv
+      return;
     }
+    // Konten werden in diesem Projekt automatisch bestätigt (auto_confirm_email_trigger) → es kommt
+    // KEINE Bestätigungs-Mail und sie ist nicht nötig. Also direkt einloggen; nur falls das scheitert
+    // (z. B. Konto existiert bereits mit anderem Passwort), einen klaren Hinweis zeigen.
+    const { data: signIn, error: signErr } = await supabaseBrowser().auth.signInWithPassword({
+      email,
+      password,
+    });
+    setBusy(false);
+    if (signIn.session) {
+      router.push('/dashboard');
+      return;
+    }
+    if (signErr && /invalid login/i.test(signErr.message)) {
+      setError('Dieses Konto gibt es schon. Bitte melde dich an oder wähle ein anderes Passwort.');
+      return;
+    }
+    setConfirmSent(true);
   }
 
   if (confirmSent) {
     return (
-      <main className="container-narrow page">
-        <Link href="/" className="brand" style={{ display: 'inline-block', marginBottom: 'var(--sp-6)' }}>
-          offero
-        </Link>
-        <h1 style={{ fontSize: '2rem' }}>Fast geschafft</h1>
-        <p className="notice">
-          Wir haben dir eine Bestätigungs-Mail an <strong>{email}</strong> geschickt. Bestätige sie, dann
-          kannst du dich anmelden.
-        </p>
-        <p className="muted" style={{ marginTop: 'var(--sp-4)' }}>
-          <Link href="/login">Zur Anmeldung</Link>
-        </p>
-      </main>
+      <div className="flex min-h-dvh items-center justify-center px-6 py-12">
+        <div className="w-full max-w-sm text-center">
+          <div className="mx-auto flex size-11 items-center justify-center rounded-full bg-brand-soft text-brand">
+            <MailCheck className="size-5" />
+          </div>
+          <h1 className="mt-5 text-2xl font-semibold tracking-tight">Fast geschafft</h1>
+          <p className="mt-2 text-sm text-muted">
+            Wir haben dir eine Bestätigungs-Mail an <span className="font-medium text-fg">{email}</span>{' '}
+            geschickt. Bestätige sie, dann kannst du dich anmelden.
+          </p>
+          <Link href="/login" className="mt-5 inline-block text-sm font-medium text-brand hover:underline">
+            Zur Anmeldung
+          </Link>
+        </div>
+      </div>
     );
   }
 
   return (
-    <main className="container-narrow page">
-      <Link href="/" className="brand" style={{ display: 'inline-block', marginBottom: 'var(--sp-6)' }}>
-        offero
-      </Link>
-      <h1 style={{ fontSize: '2rem' }}>Erste Bewerbung gratis</h1>
-      <p className="muted">Konto anlegen — keine Kreditkarte, du bestätigst alles selbst.</p>
+    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden px-6 py-12">
+      <div className="glow-orb -top-10 left-1/4 size-72 bg-brand/25" aria-hidden />
+      <div className="glow-orb bottom-0 right-1/4 size-72 bg-accent/15" aria-hidden />
+      <div className="relative w-full max-w-sm">
+        <Link href="/" className="mb-8 inline-flex items-center gap-2 text-[17px] font-semibold tracking-tight">
+          <span className="grid size-7 place-items-center rounded-lg bg-brand text-xs font-bold text-white">
+            O
+          </span>
+          Offero
+        </Link>
+        <h1 className="text-2xl font-semibold tracking-tight text-gradient">Erste Bewerbung gratis</h1>
+        <p className="mt-1.5 flex items-center gap-1.5 text-sm text-muted">
+          <Check className="size-4 text-success" /> Keine Kreditkarte · du bestätigst alles selbst
+        </p>
 
-      <form className="card stack" onSubmit={onSubmit} style={{ marginTop: 'var(--sp-5)' }}>
-        <div>
-          <label className="label" htmlFor="email">E-Mail</label>
-          <input id="email" className="input" type="email" autoComplete="email" required
-            value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label className="label" htmlFor="pw">Passwort</label>
-          <input id="pw" className="input" type="password" autoComplete="new-password" required minLength={8}
-            value={password} onChange={(e) => setPassword(e.target.value)} />
-          <span className="muted" style={{ fontSize: '0.82rem' }}>Mindestens 8 Zeichen.</span>
-        </div>
-        {error && <p className="error">{error}</p>}
-        <button className="btn btn-primary btn-block" disabled={busy} type="submit">
-          {busy ? 'Konto wird angelegt…' : 'Kostenlos starten'}
-        </button>
-      </form>
+        <form onSubmit={onSubmit} className="glass mt-6 space-y-4 rounded-2xl p-6">
+          <div>
+            <Label htmlFor="email">E-Mail</Label>
+            <Input id="email" type="email" autoComplete="email" required placeholder="du@beispiel.de"
+              value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="pw">Passwort</Label>
+            <Input id="pw" type="password" autoComplete="new-password" required minLength={8}
+              value={password} onChange={(e) => setPassword(e.target.value)} />
+            <p className="mt-1.5 text-xs text-faint">Mindestens 8 Zeichen.</p>
+          </div>
+          {error && <p className="text-sm text-danger">{error}</p>}
+          <Button type="submit" disabled={busy} className="w-full">
+            {busy ? 'Konto wird angelegt…' : 'Kostenlos starten'}
+            {!busy && <ArrowRight className="size-4" />}
+          </Button>
+        </form>
 
-      <p className="muted" style={{ marginTop: 'var(--sp-4)', textAlign: 'center' }}>
-        Schon ein Konto? <Link href="/login">Anmelden</Link>
-      </p>
-    </main>
+        <p className="mt-4 text-center text-sm text-muted">
+          Schon ein Konto?{' '}
+          <Link href="/login" className="font-medium text-brand hover:underline">
+            Anmelden
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

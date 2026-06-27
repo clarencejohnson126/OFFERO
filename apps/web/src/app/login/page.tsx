@@ -1,9 +1,11 @@
 'use client';
 
+import { ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { type FormEvent, useState } from 'react';
 
+import { Button, Input, Label } from '@/components/ui';
 import { supabaseBrowser } from '@/lib/supabase-browser';
 
 export default function LoginPage() {
@@ -27,33 +29,44 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="container-narrow page">
-      <Link href="/" className="brand" style={{ display: 'inline-block', marginBottom: 'var(--sp-6)' }}>
-        offero
-      </Link>
-      <h1 style={{ fontSize: '2rem' }}>Willkommen zurück</h1>
-      <p className="muted">Melde dich an, um an deinen Bewerbungen weiterzuarbeiten.</p>
+    <div className="relative flex min-h-dvh items-center justify-center overflow-hidden px-6 py-12">
+      <div className="glow-orb -top-10 left-1/4 size-72 bg-brand/25" aria-hidden />
+      <div className="glow-orb bottom-0 right-1/4 size-72 bg-brand-2/20" aria-hidden />
+      <div className="relative w-full max-w-sm">
+        <Link href="/" className="mb-8 inline-flex items-center gap-2 text-[17px] font-semibold tracking-tight">
+          <span className="grid size-7 place-items-center rounded-lg bg-brand text-xs font-bold text-white">
+            O
+          </span>
+          Offero
+        </Link>
+        <h1 className="text-2xl font-semibold tracking-tight text-gradient">Willkommen zurück</h1>
+        <p className="mt-1.5 text-sm text-muted">Melde dich an, um weiterzuarbeiten.</p>
 
-      <form className="card stack" onSubmit={onSubmit} style={{ marginTop: 'var(--sp-5)' }}>
-        <div>
-          <label className="label" htmlFor="email">E-Mail</label>
-          <input id="email" className="input" type="email" autoComplete="email" required
-            value={email} onChange={(e) => setEmail(e.target.value)} />
-        </div>
-        <div>
-          <label className="label" htmlFor="pw">Passwort</label>
-          <input id="pw" className="input" type="password" autoComplete="current-password" required
-            value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        {error && <p className="error">{error}</p>}
-        <button className="btn btn-primary btn-block" disabled={busy} type="submit">
-          {busy ? 'Anmelden…' : 'Anmelden'}
-        </button>
-      </form>
+        <form onSubmit={onSubmit} className="glass mt-6 space-y-4 rounded-2xl p-6">
+          <div>
+            <Label htmlFor="email">E-Mail</Label>
+            <Input id="email" type="email" autoComplete="email" required placeholder="du@beispiel.de"
+              value={email} onChange={(e) => setEmail(e.target.value)} />
+          </div>
+          <div>
+            <Label htmlFor="pw">Passwort</Label>
+            <Input id="pw" type="password" autoComplete="current-password" required
+              value={password} onChange={(e) => setPassword(e.target.value)} />
+          </div>
+          {error && <p className="text-sm text-danger">{error}</p>}
+          <Button type="submit" disabled={busy} className="w-full">
+            {busy ? 'Anmelden…' : 'Anmelden'}
+            {!busy && <ArrowRight className="size-4" />}
+          </Button>
+        </form>
 
-      <p className="muted" style={{ marginTop: 'var(--sp-4)', textAlign: 'center' }}>
-        Noch kein Konto? <Link href="/signup">Erste Bewerbung gratis</Link>
-      </p>
-    </main>
+        <p className="mt-4 text-center text-sm text-muted">
+          Noch kein Konto?{' '}
+          <Link href="/signup" className="font-medium text-brand hover:underline">
+            Erste Bewerbung gratis
+          </Link>
+        </p>
+      </div>
+    </div>
   );
 }

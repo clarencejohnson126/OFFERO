@@ -1,295 +1,119 @@
-/* Offero — Editorial Premium Design-System (ADR 0008).
-   Ruhiges Cockpit: warmes Off-White, near-black Tinte, EIN Akzent, Serif-Display + Sans.
-   Tokens spiegeln packages/ui/src/tokens. */
-:root {
-  --ink: #0f1115;
-  --surface: #f7f5f0;
-  --surface-raised: #ffffff;
-  --text: #0f1115;
-  --muted: #6b6760;
-  --border: #e7e2d8;
-  --accent: #0030ff;
-  --accent-contrast: #ffffff;
-  --success: #1f7a4d;
-  --warning: #b4690e;
-  --danger: #c0392b;
+@import 'tailwindcss';
 
-  --r-sm: 8px;
-  --r-md: 12px;
-  --r-lg: 18px;
-  --sp-2: 8px;
-  --sp-3: 12px;
-  --sp-4: 16px;
-  --sp-5: 24px;
-  --sp-6: 32px;
-  --sp-8: 48px;
-  --sp-10: 64px;
-  --maxw: 1040px;
+/* ────────────────────────────────────────────────────────────────────────
+   Offero — "Katalog" design system (McMaster-Ethos).
+   Weiß/Grau/Orange, dicht, utilitaristisch, schnell. Keine Web-Fonts, keine
+   Animation, keine großen Schatten/Rundungen. Source of Truth: offero-product/catalog.html.
+   Swappbare Tokens: Komponenten nutzen semantische Vars → Reskin = Token-Werte tauschen.
+   ──────────────────────────────────────────────────────────────────────── */
+@theme {
+  /* Hintergrund-Ebenen */
+  --color-bg: #ffffff;
+  --color-bg-soft: #f6f5f1;
+  --color-surface: #f6f5f1;
+  --color-surface-2: #f1efe9;
 
-  --font-serif-stack: var(--font-serif), Georgia, 'Times New Roman', serif;
-  --font-sans-stack: var(--font-sans), Inter, system-ui, -apple-system, sans-serif;
-}
+  /* Linien (Haupt/Sub) */
+  --color-line: #d6d3ca;
+  --color-line-strong: #c9c6bd;
 
-* {
-  box-sizing: border-box;
-}
-html,
-body {
-  margin: 0;
-  padding: 0;
-}
-body {
-  font-family: var(--font-sans-stack);
-  color: var(--text);
-  background: var(--surface);
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-  text-rendering: optimizeLegibility;
-}
+  /* Text */
+  --color-fg: #1f1f1f;
+  --color-fg-soft: #33312a;
+  --color-muted: #666666;
+  --color-faint: #888888;
 
-h1,
-h2,
-h3 {
-  font-family: var(--font-serif-stack);
-  font-weight: 500;
-  line-height: 1.12;
-  letter-spacing: -0.012em;
-  margin: 0 0 var(--sp-3);
-  color: var(--ink);
-}
-h1 {
-  font-size: 2.55rem;
-}
-h2 {
-  font-size: 1.7rem;
-}
-h3 {
-  font-size: 1.18rem;
-}
-p {
-  margin: 0 0 var(--sp-4);
-}
-a {
-  color: var(--accent);
-  text-decoration: none;
-}
-a:hover {
-  text-decoration: underline;
-}
-.muted {
-  color: var(--muted);
+  /* Akzent — Orange (Buttons/Signal) */
+  --color-brand: #d9912f;
+  --color-brand-2: #b9791f;
+  --color-accent: #b8500f;
+  --color-brand-fg: #ffffff;
+  --color-brand-soft: #fbf6ed;
+  --color-brand-line: #b9791f;
+
+  /* Links — klassisch blau (Sidebar/Inline) */
+  --color-link: #0a52ad;
+
+  /* Header-Leiste (Olive) + oranger Top-Border */
+  --color-header: #3a3f33;
+  --color-header-border: #c98a2b;
+
+  /* Tabellen */
+  --color-th: #f1efe9;
+  --color-zebra: #faf9f6;
+
+  /* Signal */
+  --color-success: #1a7a3c;
+  --color-danger: #c0150c;
+
+  /* Eckig — kleine Radien, keine großen Rundungen */
+  --radius-sm: 2px;
+  --radius-md: 3px;
+  --radius-lg: 5px;
+  --radius-xl: 6px;
+  --radius-2xl: 6px;
+
+  /* Keine Schatten/Glow im Katalog-Look */
+  --shadow-sm: none;
+  --shadow-md: none;
+  --shadow-lg: none;
+  --shadow-glow: none;
+
+  /* Keine Web-Fonts */
+  --font-sans: Arial, Helvetica, 'Liberation Sans', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, monospace;
 }
 
-/* Layout helpers */
-.container {
-  max-width: var(--maxw);
-  margin: 0 auto;
-  padding: 0 var(--sp-5);
-}
-.container-narrow {
-  max-width: 460px;
-  margin: 0 auto;
-  padding: 0 var(--sp-5);
-}
-.stack > * + * {
-  margin-top: var(--sp-4);
-}
-.row {
-  display: flex;
-  gap: var(--sp-3);
-  align-items: center;
-}
-.spread {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--sp-4);
-}
-.grid-2 {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: var(--sp-4);
-}
-@media (max-width: 720px) {
-  .grid-2 {
-    grid-template-columns: 1fr;
+@layer base {
+  * {
+    border-color: var(--color-line);
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light;
+  }
+  body {
+    min-height: 100dvh;
+    background-color: var(--color-bg);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+  }
+  a {
+    color: var(--color-link);
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+  ::selection {
+    background: #ffe6c2;
+    color: #1f1f1f;
   }
 }
 
-/* Nav */
-.nav {
-  border-bottom: 1px solid var(--border);
-  background: color-mix(in srgb, var(--surface) 82%, white);
-  position: sticky;
-  top: 0;
-  backdrop-filter: blur(8px);
-  z-index: 10;
-}
-.nav .container {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 62px;
-}
-.brand {
-  font-family: var(--font-serif-stack);
-  font-size: 1.3rem;
-  letter-spacing: -0.01em;
-  color: var(--ink);
-}
-.nav-links {
-  display: flex;
-  gap: var(--sp-5);
-  align-items: center;
-}
-.nav-links a {
-  color: var(--ink);
-  font-size: 0.95rem;
-}
-
-/* Buttons */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  font: inherit;
-  font-weight: 500;
-  font-size: 0.98rem;
-  padding: 11px 18px;
-  border-radius: var(--r-md);
-  border: 1px solid transparent;
-  cursor: pointer;
-  transition: 120ms ease;
-  text-decoration: none;
-}
-.btn-primary {
-  background: var(--accent);
-  color: var(--accent-contrast);
-}
-.btn-primary:hover {
-  filter: brightness(1.07);
-  text-decoration: none;
-}
-.btn-ghost {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--border);
-}
-.btn-ghost:hover {
-  background: var(--surface-raised);
-  text-decoration: none;
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.btn-lg {
-  padding: 14px 24px;
-  font-size: 1.05rem;
-}
-.btn-block {
-  width: 100%;
-}
-
-/* Cards */
-.card {
-  background: var(--surface-raised);
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  padding: var(--sp-5);
-}
-.card-link {
-  display: block;
-  color: inherit;
-}
-.card-link:hover {
-  border-color: color-mix(in srgb, var(--accent) 40%, var(--border));
-  text-decoration: none;
-}
-
-/* Forms */
-.label {
-  display: block;
-  font-size: 0.9rem;
-  color: var(--muted);
-  margin-bottom: 6px;
-}
-.input,
-.textarea {
-  width: 100%;
-  font: inherit;
-  padding: 11px 13px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  background: var(--surface-raised);
-  color: var(--text);
-}
-.input:focus,
-.textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
-}
-.textarea {
-  min-height: 110px;
-  resize: vertical;
-}
-
-/* Bits */
-.eyebrow {
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  font-size: 0.76rem;
-  color: var(--muted);
-}
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.8rem;
-  padding: 3px 10px;
-  border-radius: 999px;
-  border: 1px solid var(--border);
-  color: var(--muted);
-  background: var(--surface-raised);
-}
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 999px;
-  background: var(--muted);
-  display: inline-block;
-}
-.dot-ready {
-  background: var(--success);
-}
-.tag {
-  display: inline-block;
-  font-size: 0.85rem;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 8%, var(--surface-raised));
-  color: var(--ink);
-  border: 1px solid var(--border);
-}
-.divider {
-  height: 1px;
-  background: var(--border);
-  border: 0;
-  margin: var(--sp-5) 0;
-}
-.error {
-  color: var(--danger);
-  font-size: 0.9rem;
-}
-.notice {
-  background: color-mix(in srgb, var(--accent) 6%, var(--surface-raised));
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  padding: var(--sp-3) var(--sp-4);
-  font-size: 0.95rem;
-}
-.page {
-  padding: var(--sp-8) 0 var(--sp-10);
+/* Bestehende Utility-Klassennamen als FLACHE Katalog-Varianten neu definieren,
+   damit vorhandenes Markup nicht bricht (kein Blur/Glow/Gradient mehr). */
+@layer utilities {
+  .glass {
+    background: var(--color-bg-soft);
+    border: 1px solid var(--color-line);
+    box-shadow: none;
+    backdrop-filter: none;
+  }
+  .text-gradient,
+  .text-gradient-brand {
+    background: none;
+    -webkit-background-clip: border-box;
+    background-clip: border-box;
+    color: var(--color-fg);
+  }
+  .ring-grad {
+    box-shadow: inset 0 0 0 1px var(--color-line);
+  }
+  .glow-orb {
+    display: none;
+  }
 }

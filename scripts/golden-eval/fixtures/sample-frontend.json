@@ -1,0 +1,48 @@
+{
+  "cases": [
+    {
+      "id": "frontend-acme-2026",
+      "profile": {
+        "displayName": "Sam Muster",
+        "contact": { "email": "sam@example.com", "location": "Mannheim" },
+        "cvStructured": {
+          "summary": "Frontend-Entwickler mit Fokus auf React und Design-Systeme; baut seit 2022 produktiv mit TypeScript und seit 2024 RAG-gestützte interne Tools.",
+          "experience": [
+            {
+              "role": "Frontend Developer",
+              "org": "Beispiel GmbH",
+              "period": "2022–heute",
+              "highlights": [
+                "Design-System mit 40+ Komponenten in React/Storybook aufgebaut",
+                "Ladezeit der Hauptseite via Code-Splitting um 35% gesenkt",
+                "Interne Doku-Suche mit RAG (2024) eingeführt"
+              ]
+            },
+            {
+              "role": "Werkstudent Web",
+              "org": "Kleinfirma UG",
+              "period": "2020–2022",
+              "highlights": ["Wartung einer Vue-2-App", "A/B-Tests im Checkout umgesetzt"]
+            }
+          ],
+          "education": [
+            { "degree": "B.Sc. Medieninformatik", "org": "Hochschule Beispielstadt", "period": "2017–2021" }
+          ],
+          "skills": ["TypeScript", "React", "Next.js", "CSS/Tailwind", "Storybook", "Vitest"],
+          "languages": [
+            { "name": "Deutsch", "level": "Muttersprache" },
+            { "name": "Englisch", "level": "fließend" }
+          ]
+        }
+      },
+      "jobText": "ACME Software sucht eine:n Frontend Engineer (React/TypeScript) für unser Design-System-Team in Heidelberg. Aufgaben: Wiederverwendbare Komponenten bauen, Performance optimieren, eng mit Design zusammenarbeiten. Wir wünschen uns Erfahrung mit React, TypeScript, Component-Libraries und ein Auge für Accessibility. Remote-freundlich, Du-Kultur.",
+      "tier": "plus",
+      "language": "de",
+      "expectations": {
+        "requiredSections": ["hero", "fit", "experience", "contact"],
+        "mustReference": ["Design-System", "React", "TypeScript", "Performance", "Accessibility"],
+        "notes": "Goldstandard: konkrete Belege aus dem Profil (Design-System mit 40+ Komponenten, -35% Ladezeit). Ehrlich bleiben: RAG seit 2024 ist ok, KEINE erfundene Agentic-Erfahrung. Ton bescheiden, auf ACME/Heidelberg zugeschnitten."
+      }
+    }
+  ]
+}

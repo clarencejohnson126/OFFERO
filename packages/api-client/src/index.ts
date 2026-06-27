@@ -8,7 +8,7 @@ export {
 export { ProfileResource } from './resources/profile';
 export {
   ApplicationsResource,
+  type ApplicationStatusResponse,
   type CreateApplicationBody,
-  type JobStatusResponse,
 } from './resources/applications';
 export { BillingResource } from './resources/billing';

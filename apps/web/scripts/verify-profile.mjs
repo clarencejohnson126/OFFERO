@@ -33,7 +33,7 @@ async function main() {
   check('GET /profile → 200 + eigene userId', g.status === 200 && gj.userId === uid, `HTTP ${g.status}`);
 
   const { data: w } = await admin.from('credit_wallet').select('*').eq('user_id', uid).maybeSingle();
-  check('Lazy-Init: Wallet balance=1, rerolls=3', w?.balance === 1 && w?.free_rerolls_remaining === 3, `balance=${w?.balance}`);
+  check('Lazy-Init: Wallet balance=1, rerolls=0', w?.balance === 1 && w?.free_rerolls_remaining === 0, `balance=${w?.balance}`);
 
   const p = await fetch(`${base}/api/v1/profile`, {
     method: 'PUT', headers: { ...H, 'content-type': 'application/json' },

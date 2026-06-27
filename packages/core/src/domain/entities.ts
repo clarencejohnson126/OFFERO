@@ -37,6 +37,8 @@ export interface Application {
   status: ApplicationStatus;
   currentVersionId: string | null;
   customDomain: string | null;
+  /** Rendering-Variante (Template-ID, siehe TEMPLATE_CATALOG). Default 'aurora'. */
+  template: string;
   createdAt: string;
 }
 

@@ -32,6 +32,7 @@ export interface ApplicationRepo {
     jobUrl?: string | null;
     jobText?: string | null;
     company?: Json;
+    template?: string;
   }): Promise<Application>;
   get(id: string): Promise<Application | null>;
   getBySlug(slug: string): Promise<Application | null>;

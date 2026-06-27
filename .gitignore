@@ -13,6 +13,11 @@ build/
 .env
 .env.*
 !.env.example
+# Nicht-.env-Muster mit Secrets (matcht .env.* NICHT)
+.research.env
+*.secret
+*.key
+*.pem
 
 # Supabase
 .supabase/
@@ -23,6 +28,20 @@ build/
 .vscode/
 .idea/
 
+# Lokale Agent-/Tool-Konfiguration (nicht teilen)
+.claude/
+.agents/
+.codex/
+
+# Vendored externes Tool (AGPL-3.0 — NICHT in Offero-Repo mischen, nur lokal)
+/tools/
+
+# Schwester-Projekte / Scrapes — eigenständig, NICHT Teil der Offero-App
+/more-nutrition-clone/
+/offero-landing/
+/offero-notion/
+/offero-product/
+
 # Generierte Medien / temporär
 *.tmp
 /tmp/
@@ -32,3 +51,6 @@ assets/**/*.mp4
 .playwright-mcp/
 /*.png
 *.tsbuildinfo
+/design-refs/
+/direction-mockups/
+/concepts/

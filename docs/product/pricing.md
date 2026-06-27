@@ -27,33 +27,39 @@ So erreicht der Nutzer immer ein Ergebnis, das ihm gefällt, ohne sich „abgezo
 > bleibt Art. I.3 gewahrt (im bezahlten Kontext kosten Edits keine Extra-Credits) und Iteration wird der
 > erste, ehrliche Upgrade-Grund (ADR 0009).
 
-## Pakete (Arbeitsstand)
+## Pakete — Credit-Pakete (Einmalkauf, NICHT verfallend solange das Konto besteht), ADR 0012
 
-| Paket | Preis | Enthalten | Kern-Hook |
+> **Abo gestrichen (ADR 0012):** kein wiederkehrendes „Job-Hunt-Abo" mehr. Jobsuche ist schubweise;
+> Credit-Pakete passen besser und sind selbst ein milder Retention-Hebel (gespeicherter Wert hält das
+> Konto). Klare Einmal-/EUR-Preise, **kein** Auto-Renew, **keine** Wochenpreise (Anti-Dark-Pattern, Art. V.3).
+
+| Paket | Preis (Einmal) | Enthalten | Kern-Hook |
 |---|---|---|---|
-| **Free** | 0 € | **1 Bewerbung, One-Shot — kein Feinschliff, kein Re-Roll** (mit dezentem Badge), kein Bild/Video | Einstieg, Akquise |
-| **Starter** | **9,99 €** | 5 Bewerbungen · PDF · ∞ Feinschliff · 3 Re-Rolls | bezahlbarer Volumeneinstieg |
+| **Free** | 0 € | **1 Bewerbung, One-Shot** — kein Feinschliff, kein Re-Roll (dezenter Badge) | Einstieg, Akquise |
+| **Starter** | **9,99 €** | 5 Bewerbungen · PDF+DOCX · ∞ Feinschliff · 3 Re-Rolls | bezahlbarer Einstieg |
 | **Plus** | **19,99 €** | 12 · + KI-Bilder · + Firmen-Branding · Premium-Templates | visuelle Aufwertung |
-| **Pro** | **39,99 €** | 25 · + 60s-Video · + Custom Domain · + Recruiter-Radar | das volle Erlebnis |
-| **Job-Hunt-Abo** | **14,99 €/Mt** | unbegrenzt (Fair Use) · Bilder · Video · Radar — wiederkehrend | Cash-Cow für aktive Jobsuche |
+| **Pro** | **39,99 €** | 25 · + 60s-Video · + Custom Domain · + transparente View-Analytics | das volle Erlebnis |
+| **Institutions-Lizenz** | auf Anfrage | Credit-Pool/Seats für Bootcamps/Hochschulen (B2B2C) | Distributions-Moat |
 
-**Top-ups** (Arbeitsstand): +5 Bewerbungen 3,99 € · +1 Video 3,99 € · Custom Domain 9,99 €.
+**Top-ups** (à la carte): +5 Bewerbungen 3,99 € · +1 Video 3,99 € · Custom Domain 9,99 €.
+**Credits verfallen nicht**, solange das Konto besteht.
 
-## Premium-Hook: Recruiter-Radar
+## Premium-Hook: transparente View-Analytics (umbenannt von „Recruiter-Radar", ADR 0012)
 
-Cookieless Seitenaufruf-Signal: zeigt dem Bewerber, ob/wann seine Bewerbung geöffnet wurde.
-- **Kostet uns ~0 €** (ein Logging-Eintrag pro Aufruf).
-- Wird für **alle** geloggt, aber nur **Pro/Abo** angezeigt → eingebauter Upsell: Free/Starter
-  sehen „X Aufrufe — in Pro freischalten".
+Zeigt dem Bewerber **transparent**, ob/wann/wie lange seine Seite angesehen wurde („geöffnet, 40 s,
+Sektion Projekte") — Trust statt heimliches Tracking (Recruiter blocken Spy-Tools).
+- **Kostet uns ~0 €** (ein Logging-Eintrag pro Aufruf, cookieless, keine IP/UA-Rohdaten).
+- Wird für **alle** geloggt, im Detail ab **Pro** angezeigt → eingebauter Upsell. Speist den
+  **Outcome-Daten-Moat** (ADR 0012).
 
-## Offene Preis-Entscheidungen (🔲 für die Besprechung)
+## Offene Preis-Entscheidungen (🔲)
 
-- Währung/Märkte zuerst (EUR/DE only vs. international)?
-- Genauer Fair-Use-Deckel beim Abo?
+- Genaue EUR-Paketpreise final gegen Stückkosten ([`unit-economics.md`](./unit-economics.md)), v. a. Video-Sockel.
+- Institutions-Lizenz: Seats vs. Credit-Pool (→ ADR im GTM-Slice, Task #40).
 - Einführungs-/Pilotpreise zum Launch?
 - Mobile: In-App-Käufe (Apple/Google nehmen 15–30 %) vs. Käufe nur über die Web-App lenken?
   → siehe [`../architecture/mobile-strategy.md`](../architecture/mobile-strategy.md).
-- Video an Pro/Abo binden bleibt fix, solange der Remotion-Sockel (€92/Mt) nicht gedeckt ist.
+- Video an Pro binden bleibt fix, solange der Remotion-Sockel (€92/Mt) nicht gedeckt ist.
 
 ## Leitplanken (aus der Constitution)
 

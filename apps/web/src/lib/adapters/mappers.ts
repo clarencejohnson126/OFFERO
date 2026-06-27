@@ -1,5 +1,10 @@
 import type {
+  Application,
+  ApplicationContent,
+  ApplicationStatus,
   CreditWallet,
+  GenerationKind,
+  GenerationVersion,
   LedgerEntry,
   LedgerReason,
   Profile,
@@ -57,6 +62,35 @@ export function rowToLedger(r: Row): LedgerEntry {
     delta: Number(r.delta ?? 0),
     reason: r.reason as LedgerReason,
     refId: r.ref_id as string,
+    createdAt: r.created_at as string,
+  };
+}
+
+export function rowToApplication(r: Row): Application {
+  return {
+    id: r.id as string,
+    userId: r.user_id as string,
+    tenantSlug: r.tenant_slug as string,
+    jobUrl: (r.job_url as string | null) ?? null,
+    jobText: (r.job_text as string | null) ?? null,
+    company: (r.company as Json) ?? {},
+    status: r.status as ApplicationStatus,
+    currentVersionId: (r.current_version_id as string | null) ?? null,
+    customDomain: (r.custom_domain as string | null) ?? null,
+    template: (r.template as string | null) ?? 'aurora',
+    createdAt: r.created_at as string,
+  };
+}
+
+export function rowToVersion(r: Row): GenerationVersion {
+  return {
+    id: r.id as string,
+    applicationId: r.application_id as string,
+    kind: r.kind as GenerationKind,
+    // content wurde beim Schreiben schema-validiert (parseContent) → Cast beim Lesen.
+    content: r.content as ApplicationContent,
+    modelUsed: (r.model_used as string | null) ?? null,
+    costCents: Number(r.cost_cents ?? 0),
     createdAt: r.created_at as string,
   };
 }

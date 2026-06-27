@@ -13,6 +13,14 @@ export function notImplemented(message = 'Noch nicht implementiert'): NextRespon
 /** Mappt DomainError → { error: { code, message } } mit passendem HTTP-Status; sonst 500. */
 export function handleError(e: unknown): NextResponse {
   if (e instanceof DomainError) {
+    // Server-Fehler (>=500): Detail nur serverseitig loggen, nach außen generisch (kein DB-/Intern-Leak).
+    if (e.status >= 500) {
+      console.error('[api] internal:', e.message);
+      return NextResponse.json(
+        { error: { code: e.code, message: 'Interner Fehler.' } },
+        { status: e.status },
+      );
+    }
     return NextResponse.json(e.toResponse(), { status: e.status });
   }
   // zod-Validierungsfehler → 422 (ohne zod-Import: via name).
@@ -22,6 +30,9 @@ export function handleError(e: unknown): NextResponse {
       { status: 422 },
     );
   }
-  const message = e instanceof Error ? e.message : 'Interner Fehler';
-  return NextResponse.json({ error: { code: 'INTERNAL', message } }, { status: 500 });
+  console.error('[api] unhandled:', e);
+  return NextResponse.json(
+    { error: { code: 'INTERNAL', message: 'Interner Fehler.' } },
+    { status: 500 },
+  );
 }

@@ -23,9 +23,10 @@ describe('Entitlements als Daten (nie Plan-Name fragen)', () => {
     expect(hasFeature('pro', 'video')).toBe(true);
     expect(hasFeature('free', 'video')).toBe(false);
   });
-  it('Abo hat alle Pro-Features', () => {
-    expect(hasFeature('subscription', 'custom_domain')).toBe(true);
-    expect(hasFeature('subscription', 'radar')).toBe(true);
+  it('subscription-Tier ist entfernt (ADR 0012); Pro hat alle Premium-Features', () => {
+    expect((PLAN_CATALOG as Record<string, unknown>).subscription).toBeUndefined();
+    expect(hasFeature('pro', 'custom_domain')).toBe(true);
+    expect(hasFeature('pro', 'radar')).toBe(true);
   });
   it('Free = 1 Credit, Pro = 25', () => {
     expect(PLAN_CATALOG.free.credits).toBe(1);
@@ -42,10 +43,18 @@ describe('Tenant-Slug', () => {
     const slug = await buildUniqueSlug('api', async () => false);
     expect(slug).not.toBe('api');
   });
-  it('Kollision wird mit Suffix aufgelöst', async () => {
-    const taken = new Set(['acme', 'acme-1']);
-    const slug = await buildUniqueSlug('acme', async (s) => taken.has(s));
-    expect(slug).toBe('acme-2');
+  it('hängt einen nicht-erratbaren Token an (injizierbar) und würfelt bei Kollision neu', async () => {
+    const slug = await buildUniqueSlug('acme', async () => false, { token: () => 'tok123' });
+    expect(slug).toBe('acme-tok123');
+    const seq = ['x1', 'x2'];
+    let i = 0;
+    const taken = new Set(['acme-x1']);
+    const slug2 = await buildUniqueSlug('acme', async (s) => taken.has(s), { token: () => seq[i++] ?? 'zz' });
+    expect(slug2).toBe('acme-x2');
+  });
+  it('echter Zufalls-Token ist nicht erratbar (Stamm + 8 Zeichen)', async () => {
+    const slug = await buildUniqueSlug('acme', async () => false);
+    expect(slug).toMatch(/^acme-[a-z0-9]{8}$/);
   });
 });
 

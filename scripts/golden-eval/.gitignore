@@ -1,0 +1,4 @@
+# Scorecards je Lauf — Artefakte, nicht versionieren (ledger.json bleibt als Baseline-Historie).
+out/
+# Echte Goldstandard-Fixtures enthalten PII (Constitution Art. III / DSGVO) — NIE committen.
+fixtures/*.private.json

@@ -20,9 +20,11 @@ export async function POST(req: Request) {
     }
 
     const bytes = await storage.download(profile.cvRaw);
-    const cvText = new TextDecoder().decode(bytes).trim();
-    if (cvText.length === 0) {
-      throw errors.validation('CV-Inhalt leer oder kein Text (PDF-Parsing kommt später).');
+    const cvText = (await extractCvText(bytes)).trim();
+    if (cvText.length < 30) {
+      throw errors.validation(
+        'Konnte keinen Text aus dem Lebenslauf lesen — leer oder ein gescanntes Bild-PDF?',
+      );
     }
 
     const wallet = await repo.billing.getWallet(userId);
@@ -36,4 +38,21 @@ export async function POST(req: Request) {
   } catch (e) {
     return handleError(e);
   }
+}
+
+// Liest Text aus dem hochgeladenen CV: PDF → unpdf-Textextraktion, sonst UTF-8.
+async function extractCvText(bytes: Uint8Array): Promise<string> {
+  const isPdf =
+    bytes.length > 4 &&
+    bytes[0] === 0x25 &&
+    bytes[1] === 0x50 &&
+    bytes[2] === 0x44 &&
+    bytes[3] === 0x46; // "%PDF"
+  if (isPdf) {
+    const { extractText, getDocumentProxy } = await import('unpdf');
+    const pdf = await getDocumentProxy(bytes);
+    const { text } = await extractText(pdf, { mergePages: true });
+    return Array.isArray(text) ? text.join('\n') : text;
+  }
+  return new TextDecoder().decode(bytes);
 }

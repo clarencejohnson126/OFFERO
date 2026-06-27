@@ -15,6 +15,8 @@ export interface ServerEnv {
   serviceRoleKey: string;
   dbSchema: string;
   anthropicApiKey: string;
+  /** KI-Backend: 'api' (Anthropic-API, Produktion) oder 'cli' (lokale claude-CLI/Subscription, Test). */
+  aiBackend: 'api' | 'cli';
   geminiApiKey: string;
   stripeSecretKey: string;
   stripeWebhookSecret: string;
@@ -29,6 +31,7 @@ export function serverEnv(): ServerEnv {
     serviceRoleKey,
     dbSchema: OFFERO_SCHEMA,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
+    aiBackend: process.env.AI_BACKEND === 'cli' ? 'cli' : 'api',
     geminiApiKey: process.env.GEMINI_API_KEY ?? '',
     stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',

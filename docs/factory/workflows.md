@@ -50,5 +50,8 @@ hieraus kuratierte (anonymisierte) Input/Erwartungs-Paare gezogen, sobald M4 sta
 
 ## Status
 
-Backlog — noch kein ADW implementiert. Reihenfolge zum Start: **`golden-eval`** + **`cost-guard`**
-zuerst (sie schützen Qualität & Marge), dann `scaffold` und der Feature-Workflow.
+- ✅ **`golden-eval` implementiert** (ADR 0010). Engine: `packages/core/src/eval/` (Rubric, Judge,
+  Gate). Runner: `scripts/golden-eval/` — Aufruf `ANTHROPIC_API_KEY=… pnpm eval`. Synthetische
+  Beispiel-Fixture committet; echter (PII-)Goldstandard wird als `fixtures/*.private.json` eingehängt.
+- ⬜ Als Nächstes: **`cost-guard`** (der Runner summiert bereits Kosten/Lauf → Andockpunkt), dann
+  `scaffold` und der `plan→build→test→review`-Feature-Workflow.

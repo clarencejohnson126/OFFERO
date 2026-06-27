@@ -1,10 +1,14 @@
 'use client';
 
+import { FileText, Loader2, Save } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import type { CvStructured } from '@offero/core';
 
+import { Button, Card, Input, Label, Pill } from '@/components/ui';
 import { api } from '@/lib/api';
+
+import { DocumentsCard } from './DocumentsCard';
 
 interface ProfileResp {
   displayName: string | null;
@@ -15,8 +19,8 @@ interface ProfileResp {
 export default function ProfilePage() {
   const [profile, setProfile] = useState<ProfileResp | null>(null);
   const [name, setName] = useState('');
-  const [file, setFile] = useState<File | null>(null);
-  const [busy, setBusy] = useState('');
+  const [busy, setBusy] = useState<'' | 'name' | 'cv'>('');
+  const [cvStep, setCvStep] = useState('');
   const [msg, setMsg] = useState('');
   const [err, setErr] = useState('');
 
@@ -34,12 +38,13 @@ export default function ProfilePage() {
     }
   }
 
-  async function run(kind: string, fn: () => Promise<void>) {
-    setBusy(kind);
+  async function saveName() {
     setErr('');
     setMsg('');
+    setBusy('name');
     try {
-      await fn();
+      await api.updateProfile({ displayName: name });
+      setMsg('Name gespeichert.');
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Fehler');
     } finally {
@@ -47,129 +52,165 @@ export default function ProfilePage() {
     }
   }
 
+  // EIN Schritt: Datei wählen → hochladen → analysieren. Kein separater „Hochladen"-Klick.
+  async function uploadAndAnalyze(file: File) {
+    setErr('');
+    setMsg('');
+    setBusy('cv');
+    try {
+      setCvStep('Lade hoch…');
+      await api.uploadCv(file);
+      setCvStep('Analysiere…');
+      const r = (await api.parseCv()) as { cvStructured: CvStructured };
+      setProfile((p) => ({
+        displayName: p?.displayName ?? null,
+        cvRaw: { bucket: 'cv', path: file.name },
+        cvStructured: r.cvStructured,
+      }));
+      setMsg('Lebenslauf hochgeladen & analysiert ✓');
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : 'Fehler beim Lebenslauf.');
+    } finally {
+      setBusy('');
+      setCvStep('');
+    }
+  }
+
   const cv = profile?.cvStructured ?? null;
 
   return (
-    <main className="container page" style={{ maxWidth: 760 }}>
-      <p className="eyebrow">Profil</p>
-      <h1>Dein Profil</h1>
-      <p className="muted">
-        Die KI strukturiert deinen Lebenslauf — <strong>du bestätigst und korrigierst</strong>. Das ist
-        die Grundlage jeder zugeschnittenen Bewerbung.
-      </p>
-
-      {msg && <p className="notice">{msg}</p>}
-      {err && <p className="error">{err}</p>}
-
-      <div className="card stack" style={{ marginTop: 'var(--sp-5)' }}>
-        <div>
-          <label className="label" htmlFor="name">Anzeigename</label>
-          <input id="name" className="input" value={name} onChange={(e) => setName(e.target.value)} />
-        </div>
-        <button
-          className="btn btn-ghost"
-          type="button"
-          disabled={busy === 'name'}
-          onClick={() => run('name', async () => {
-            await api.updateProfile({ displayName: name });
-            setMsg('Name gespeichert.');
-          })}
-        >
-          {busy === 'name' ? 'Speichern…' : 'Speichern'}
-        </button>
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-[22px] font-bold tracking-tight text-fg">Profil</h1>
+        <p className="mt-1 max-w-xl text-sm text-muted">
+          Optional, aber hilfreich: Lade deinen Lebenslauf hoch — die KI strukturiert ihn{' '}
+          <span className="font-medium text-fg">automatisch</span>. Für eine schnelle Bewerbung
+          reichen aber auch ein paar Stichworte direkt bei „Neue Bewerbung".
+        </p>
       </div>
 
-      <div className="card stack" style={{ marginTop: 'var(--sp-4)' }}>
-        <h3>Lebenslauf</h3>
-        {profile?.cvRaw ? (
-          <p className="muted">CV hochgeladen ✓ — du kannst ihn neu hochladen oder strukturieren.</p>
-        ) : (
-          <p className="muted">Lade deinen Lebenslauf als Text (.txt/.md) hoch. PDF-Parsing kommt später.</p>
-        )}
+      {msg && (
+        <div className="rounded-md border border-line bg-brand-soft px-3.5 py-2.5 text-sm text-brand">
+          {msg}
+        </div>
+      )}
+      {err && <p className="text-sm text-danger">{err}</p>}
+
+      <Card className="p-5">
+        <Label htmlFor="name">Anzeigename</Label>
+        <div className="flex gap-2">
+          <Input
+            id="name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Vor- und Nachname"
+          />
+          <Button variant="secondary" disabled={busy === 'name'} onClick={saveName}>
+            {busy === 'name' ? <Loader2 className="size-4 animate-spin" /> : <Save className="size-4" />}
+            Speichern
+          </Button>
+        </div>
+      </Card>
+
+      <Card className="p-5">
+        <div className="flex items-center gap-2">
+          <FileText className="size-4 text-muted" />
+          <h3 className="text-[15px] font-semibold">
+            Lebenslauf <span className="text-xs font-normal text-faint">(optional)</span>
+          </h3>
+        </div>
+        <p className="mt-1.5 text-sm text-muted">
+          {profile?.cvStructured
+            ? 'Lebenslauf analysiert ✓ — du kannst unten prüfen oder einen neuen hochladen.'
+            : 'Lade deinen Lebenslauf als PDF oder Text (.pdf, .txt, .md) hoch — er wird automatisch analysiert.'}
+        </p>
         <input
-          className="input"
           type="file"
-          accept=".txt,.md,text/plain"
-          onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+          accept=".pdf,.txt,.md,application/pdf,text/plain"
+          disabled={busy === 'cv'}
+          onChange={(e) => {
+            const f = e.target.files?.[0] ?? null;
+            if (f) void uploadAndAnalyze(f);
+            e.target.value = '';
+          }}
+          className="mt-3 block w-full text-sm text-muted file:mr-3 file:rounded-md file:border file:border-line-strong file:bg-bg-soft file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-fg hover:file:bg-surface-2 disabled:opacity-50"
         />
-        <div className="row">
-          <button
-            className="btn btn-ghost"
-            type="button"
-            disabled={!file || busy === 'upload'}
-            onClick={() => run('upload', async () => {
-              if (!file) return;
-              await api.uploadCv(file);
-              setMsg('CV hochgeladen. Jetzt strukturieren.');
-              await load();
-            })}
-          >
-            {busy === 'upload' ? 'Hochladen…' : 'Hochladen'}
-          </button>
-          <button
-            className="btn btn-primary"
-            type="button"
-            disabled={!profile?.cvRaw || busy === 'parse'}
-            onClick={() => run('parse', async () => {
-              const r = (await api.parseCv()) as { cvStructured: CvStructured };
-              setProfile((p) => (p ? { ...p, cvStructured: r.cvStructured } : p));
-              setMsg('CV strukturiert — bitte prüfen.');
-            })}
-          >
-            {busy === 'parse' ? 'Strukturiere…' : 'Strukturieren (KI)'}
-          </button>
-        </div>
-      </div>
+        {busy === 'cv' && (
+          <p className="mt-3 flex items-center gap-2 text-sm text-muted">
+            <Loader2 className="size-4 animate-spin" /> {cvStep}
+          </p>
+        )}
+      </Card>
+
+      <DocumentsCard />
 
       {cv && (
-        <div className="card stack" style={{ marginTop: 'var(--sp-4)' }}>
-          <h3>Strukturierte Daten</h3>
-          {cv.summary && <p className="muted">{cv.summary}</p>}
+        <Card className="space-y-5 p-5">
+          <h3 className="text-[15px] font-semibold">Strukturierte Daten</h3>
+          {cv.summary && <p className="text-sm text-muted">{cv.summary}</p>}
 
           {cv.experience.length > 0 && (
-            <div className="stack">
-              <strong>Erfahrung</strong>
-              {cv.experience.map((x, i) => (
-                <div key={i}>
-                  <div className="spread">
-                    <span>{x.role}{x.org ? ` · ${x.org}` : ''}</span>
-                    <span className="muted">{x.period}</span>
+            <div>
+              <p className="mb-2 text-xs font-medium tracking-wider text-faint uppercase">Erfahrung</p>
+              <div className="space-y-3">
+                {cv.experience.map((x, i) => (
+                  <div key={i} className="border-l-2 border-line pl-3.5">
+                    <div className="flex items-baseline justify-between gap-3">
+                      <p className="text-sm font-medium text-fg">
+                        {x.role}
+                        {x.org ? <span className="text-muted"> · {x.org}</span> : null}
+                      </p>
+                      {x.period && <span className="shrink-0 font-mono text-xs text-faint">{x.period}</span>}
+                    </div>
+                    {x.highlights.length > 0 && (
+                      <ul className="mt-1 space-y-0.5 text-sm text-muted">
+                        {x.highlights.map((h, j) => (
+                          <li key={j}>– {h}</li>
+                        ))}
+                      </ul>
+                    )}
                   </div>
-                  {x.highlights?.length > 0 && (
-                    <ul className="muted" style={{ margin: '4px 0 0', paddingLeft: 18 }}>
-                      {x.highlights.map((h, j) => <li key={j}>{h}</li>)}
-                    </ul>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           )}
 
           {cv.education.length > 0 && (
-            <div className="stack">
-              <strong>Ausbildung</strong>
-              {cv.education.map((x, i) => (
-                <div className="spread" key={i}>
-                  <span>{x.degree}{x.org ? ` · ${x.org}` : ''}</span>
-                  <span className="muted">{x.period}</span>
-                </div>
-              ))}
+            <div>
+              <p className="mb-2 text-xs font-medium tracking-wider text-faint uppercase">Ausbildung</p>
+              <div className="space-y-1.5">
+                {cv.education.map((x, i) => (
+                  <div key={i} className="flex items-baseline justify-between gap-3 text-sm">
+                    <span className="text-fg">
+                      {x.degree}
+                      {x.org ? <span className="text-muted"> · {x.org}</span> : null}
+                    </span>
+                    {x.period && <span className="shrink-0 font-mono text-xs text-faint">{x.period}</span>}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
 
           {cv.skills.length > 0 && (
-            <div className="row" style={{ flexWrap: 'wrap', gap: 6 }}>
-              {cv.skills.map((s) => <span className="tag" key={s}>{s}</span>)}
+            <div>
+              <p className="mb-2 text-xs font-medium tracking-wider text-faint uppercase">Skills</p>
+              <div className="flex flex-wrap gap-1.5">
+                {cv.skills.map((s) => (
+                  <Pill key={s}>{s}</Pill>
+                ))}
+              </div>
             </div>
           )}
 
           {cv.languages.length > 0 && (
-            <p className="muted">
-              Sprachen: {cv.languages.map((l) => `${l.name}${l.level ? ` (${l.level})` : ''}`).join(' · ')}
+            <p className="text-sm text-muted">
+              <span className="text-fg-soft">Sprachen:</span>{' '}
+              {cv.languages.map((l) => `${l.name}${l.level ? ` (${l.level})` : ''}`).join(' · ')}
             </p>
           )}
-        </div>
+        </Card>
       )}
-    </main>
+    </div>
   );
 }

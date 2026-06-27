@@ -11,7 +11,9 @@
     "./ai": "./src/ai/index.ts",
     "./billing": "./src/billing/index.ts",
     "./tenancy": "./src/tenancy/index.ts",
-    "./generation": "./src/generation/index.ts"
+    "./generation": "./src/generation/index.ts",
+    "./job-extraction": "./src/job-extraction/index.ts",
+    "./eval": "./src/eval/index.ts"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",

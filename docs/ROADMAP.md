@@ -49,3 +49,13 @@ Umsetzungs-Detailfragen (s. u.), keine Grundsatzweichen mehr.
 - `golden-eval` + `cost-guard` als erste Fabrik-ADWs (schützen Qualität & Marge).
 - Remotion-Lizenz-Grenzfall mit Remotion klären (Free-eligibility solo vs. Automator-Pflicht).
 - Live-Check der KI-/Gemini-/Remotion-Preise.
+
+## Security-Follow-ups (aus Code-Review 2026-06-21, vor Produktion)
+
+- **Rate-Limiting** auf `POST /applications` und `/applications/:id/generate` (token-/Kostenhebel) —
+  vorhandenen `RATE_LIMITED`-Code nutzen (z. B. Upstash/Supabase pro User). *(Review M2)*
+- **SSRF-Guard für `jobUrl`**, sobald ein Slice die URL serverseitig fetcht: nur http/https,
+  keine privaten IPs/`file://`/Metadata-Endpunkte (Allowlist). Heute ungenutzt → latent. *(Review L1)*
+- **Credit-Modell als ADR**: „1 Credit pro Bewerbung" (idempotenter `ref_id`) vs. Refund-on-failure
+  klar festschreiben; Re-Generierung vs. Re-Roll abgrenzen. *(Review C1-Folge)*
+- **`getPublic` defensiv**: `parseContent` auch beim Lesen im öffentlichen Pfad. *(Review L3)*

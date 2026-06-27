@@ -1,9 +1,15 @@
 import 'server-only';
 
 import {
+  type Application,
+  type ApplicationContent,
   type ApplicationRepo,
+  type ApplicationStatus,
   type BillingRepo,
+  type GenerationKind,
+  type GenerationVersion,
   type GenerationVersionRepo,
+  type Json,
   type LedgerReason,
   type MediaRepo,
   type Profile,
@@ -14,10 +20,19 @@ import {
 } from '@offero/core';
 
 import type { DbClient } from '../supabase-server';
-import { profilePatchToRow, rowToLedger, rowToProfile, rowToWallet } from './mappers';
+import {
+  profilePatchToRow,
+  rowToApplication,
+  rowToLedger,
+  rowToProfile,
+  rowToVersion,
+  rowToWallet,
+} from './mappers';
+
+type Row = Record<string, unknown>;
 
 const notImpl = (what: string): never => {
-  throw errors.notImplemented(`${what} kommt in M4+.`);
+  throw errors.notImplemented(`${what} kommt in M7+.`);
 };
 
 class SupabaseProfileRepo implements ProfileRepo {
@@ -106,26 +121,141 @@ class SupabaseBillingRepo implements BillingRepo {
   }
 }
 
-// Stubs bis M4 (Generierung/Medien/Radar).
-const applicationsStub: ApplicationRepo = {
-  create: () => notImpl('applications.create'),
-  get: () => notImpl('applications.get'),
-  getBySlug: () => notImpl('applications.getBySlug'),
-  listByUser: () => notImpl('applications.listByUser'),
-  setStatus: () => notImpl('applications.setStatus'),
-  setCurrentVersion: () => notImpl('applications.setCurrentVersion'),
-  clearJobText: () => notImpl('applications.clearJobText'),
-  delete: () => notImpl('applications.delete'),
-};
+class SupabaseApplicationRepo implements ApplicationRepo {
+  constructor(private readonly db: DbClient) {}
 
-const versionsStub: GenerationVersionRepo = {
-  create: () => notImpl('versions.create'),
-  get: () => notImpl('versions.get'),
-  listByApplication: () => notImpl('versions.listByApplication'),
-  updateContent: () => notImpl('versions.updateContent'),
-  appendEdit: () => notImpl('versions.appendEdit'),
-};
+  async create(input: {
+    userId: string;
+    tenantSlug: string;
+    jobUrl?: string | null;
+    jobText?: string | null;
+    company?: Json;
+    template?: string;
+  }): Promise<Application> {
+    const row: Row = {
+      user_id: input.userId,
+      tenant_slug: input.tenantSlug,
+      job_url: input.jobUrl ?? null,
+      job_text: input.jobText ?? null,
+      company: input.company ?? {},
+      template: input.template ?? 'aurora',
+    };
+    const { data, error } = await this.db.from('application').insert(row).select().single();
+    if (error) throw errors.internal(error.message);
+    return rowToApplication(data);
+  }
 
+  async get(id: string): Promise<Application | null> {
+    const { data, error } = await this.db.from('application').select('*').eq('id', id).maybeSingle();
+    if (error) throw errors.internal(error.message);
+    return data ? rowToApplication(data) : null;
+  }
+
+  async getBySlug(slug: string): Promise<Application | null> {
+    const { data, error } = await this.db
+      .from('application')
+      .select('*')
+      .eq('tenant_slug', slug)
+      .maybeSingle();
+    if (error) throw errors.internal(error.message);
+    return data ? rowToApplication(data) : null;
+  }
+
+  async listByUser(userId: string): Promise<Application[]> {
+    const { data, error } = await this.db
+      .from('application')
+      .select('*')
+      .eq('user_id', userId)
+      .order('created_at', { ascending: false });
+    if (error) throw errors.internal(error.message);
+    return (data ?? []).map(rowToApplication);
+  }
+
+  async setStatus(id: string, status: ApplicationStatus): Promise<void> {
+    const { error } = await this.db.from('application').update({ status }).eq('id', id);
+    if (error) throw errors.internal(error.message);
+  }
+
+  async setCurrentVersion(id: string, versionId: string): Promise<void> {
+    const { error } = await this.db
+      .from('application')
+      .update({ current_version_id: versionId })
+      .eq('id', id);
+    if (error) throw errors.internal(error.message);
+  }
+
+  async clearJobText(id: string): Promise<void> {
+    const { error } = await this.db.from('application').update({ job_text: null }).eq('id', id);
+    if (error) throw errors.internal(error.message);
+  }
+
+  async delete(id: string): Promise<void> {
+    const { error } = await this.db.from('application').delete().eq('id', id);
+    if (error) throw errors.internal(error.message);
+  }
+}
+
+class SupabaseGenerationVersionRepo implements GenerationVersionRepo {
+  constructor(private readonly db: DbClient) {}
+
+  async create(input: {
+    applicationId: string;
+    kind: GenerationKind;
+    content: ApplicationContent;
+    modelUsed?: string | null;
+    costCents?: number;
+  }): Promise<GenerationVersion> {
+    const row: Row = {
+      application_id: input.applicationId,
+      kind: input.kind,
+      content: input.content as unknown as Json,
+      model_used: input.modelUsed ?? null,
+      cost_cents: Math.round(input.costCents ?? 0),
+    };
+    const { data, error } = await this.db.from('generation_version').insert(row).select().single();
+    if (error) throw errors.internal(error.message);
+    return rowToVersion(data);
+  }
+
+  async get(id: string): Promise<GenerationVersion | null> {
+    const { data, error } = await this.db
+      .from('generation_version')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+    if (error) throw errors.internal(error.message);
+    return data ? rowToVersion(data) : null;
+  }
+
+  async listByApplication(applicationId: string): Promise<GenerationVersion[]> {
+    const { data, error } = await this.db
+      .from('generation_version')
+      .select('*')
+      .eq('application_id', applicationId)
+      .order('created_at', { ascending: false });
+    if (error) throw errors.internal(error.message);
+    return (data ?? []).map(rowToVersion);
+  }
+
+  async updateContent(id: string, content: ApplicationContent): Promise<GenerationVersion> {
+    const { data, error } = await this.db
+      .from('generation_version')
+      .update({ content: content as unknown as Json })
+      .eq('id', id)
+      .select()
+      .single();
+    if (error) throw errors.internal(error.message);
+    return rowToVersion(data);
+  }
+
+  async appendEdit(input: { versionId: string; userId: string; patch: Json }): Promise<void> {
+    const row: Row = { version_id: input.versionId, user_id: input.userId, patch: input.patch };
+    const { error } = await this.db.from('edit_log').insert(row);
+    if (error) throw errors.internal(error.message);
+  }
+}
+
+// Stubs bis Medien-/Radar-Slice (M7/M8).
 const mediaStub: MediaRepo = {
   create: () => notImpl('media.create'),
   listByVersion: () => notImpl('media.listByVersion'),
@@ -140,13 +270,15 @@ const radarStub: RadarRepo = {
 export class SupabaseRepository implements Repository {
   readonly profiles: ProfileRepo;
   readonly billing: BillingRepo;
-  readonly applications = applicationsStub;
-  readonly versions = versionsStub;
+  readonly applications: ApplicationRepo;
+  readonly versions: GenerationVersionRepo;
   readonly media = mediaStub;
   readonly radar = radarStub;
 
   constructor(db: DbClient) {
     this.profiles = new SupabaseProfileRepo(db);
     this.billing = new SupabaseBillingRepo(db);
+    this.applications = new SupabaseApplicationRepo(db);
+    this.versions = new SupabaseGenerationVersionRepo(db);
   }
 }

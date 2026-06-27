@@ -1,4 +1,4 @@
-import type { Application } from '@offero/core';
+import type { Application, ApplicationStatus, GenerationVersion, Json } from '@offero/core';
 
 import type { RequestFn } from '../client';
 
@@ -6,40 +6,50 @@ export interface CreateApplicationBody {
   jobUrl?: string;
   jobText?: string;
   titleHint?: string;
+  /** Rendering-Variante (Template-ID, siehe TEMPLATE_CATALOG). */
+  template?: string;
+  company?: Json;
 }
 
-export interface JobStatusResponse {
-  status: 'queued' | 'running' | 'ready' | 'error';
+/** GET /api/v1/applications/:id/status — Polling-Antwort. */
+export interface ApplicationStatusResponse {
+  status: ApplicationStatus;
+  currentVersionId: string | null;
 }
 
 export class ApplicationsResource {
   constructor(private readonly request: RequestFn) {}
 
-  list(): Promise<Application[]> {
-    return this.request('GET', '/api/v1/applications');
+  async list(): Promise<Application[]> {
+    const { applications } = await this.request<{ applications: Application[] }>(
+      'GET',
+      '/api/v1/applications',
+    );
+    return applications;
   }
 
-  get(id: string): Promise<Application> {
+  async get(id: string): Promise<{ application: Application; version: GenerationVersion | null }> {
     return this.request('GET', `/api/v1/applications/${id}`);
   }
 
-  create(body: CreateApplicationBody): Promise<Application> {
-    return this.request('POST', '/api/v1/applications', body);
+  async create(body: CreateApplicationBody): Promise<Application> {
+    const { application } = await this.request<{ application: Application }>(
+      'POST',
+      '/api/v1/applications',
+      body,
+    );
+    return application;
   }
 
-  remove(id: string): Promise<void> {
+  async remove(id: string): Promise<{ ok: true }> {
     return this.request('DELETE', `/api/v1/applications/${id}`);
   }
 
-  generate(id: string): Promise<JobStatusResponse> {
+  async generate(id: string): Promise<{ application: Application; version: GenerationVersion }> {
     return this.request('POST', `/api/v1/applications/${id}/generate`);
   }
 
-  reroll(id: string): Promise<JobStatusResponse> {
-    return this.request('POST', `/api/v1/applications/${id}/reroll`);
-  }
-
-  status(id: string): Promise<JobStatusResponse> {
+  async status(id: string): Promise<ApplicationStatusResponse> {
     return this.request('GET', `/api/v1/applications/${id}/status`);
   }
 }

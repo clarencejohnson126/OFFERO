@@ -1,8 +1,9 @@
 import 'server-only';
 
-import { ProfileService } from '@offero/core';
+import { ApplicationService, GenerationPipeline, ProfileService } from '@offero/core';
 
 import { ClaudeAIProvider } from './adapters/claude-ai-provider';
+import { ClaudeCliProvider } from './adapters/claude-cli-provider';
 import { SupabaseRepository } from './adapters/supabase-repository';
 import { SupabaseStorage } from './adapters/supabase-storage';
 import { serverEnv } from './env';
@@ -17,8 +18,17 @@ function build() {
   const repo = new SupabaseRepository(supabase);
   const storage = new SupabaseStorage(supabase);
   const profileService = new ProfileService(repo);
-  const aiText = env.anthropicApiKey ? new ClaudeAIProvider(env.anthropicApiKey) : null;
-  return { supabase, repo, storage, profileService, aiText };
+  // KI-Backend wählbar: 'cli' = lokale claude-CLI auf der Subscription (Test, keine API-Token),
+  // 'api' = Anthropic-API-Key (Produktion). Siehe AI_BACKEND in .env.local.
+  const aiText =
+    env.aiBackend === 'cli'
+      ? new ClaudeCliProvider()
+      : env.anthropicApiKey
+        ? new ClaudeAIProvider(env.anthropicApiKey)
+        : null;
+  const pipeline = aiText ? new GenerationPipeline({ ai: aiText, repo }) : undefined;
+  const applicationService = new ApplicationService(repo, pipeline);
+  return { supabase, repo, storage, profileService, applicationService, aiText };
 }
 
 let container: ReturnType<typeof build> | null = null;

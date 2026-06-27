@@ -1,4 +1,4 @@
-import type { Brand, SelfIntro } from '@offero/core';
+import type { Brand, MediaRef, SelfIntro } from '@offero/core';
 
 import { authenticate } from '@/app/api/v1/_lib/auth';
 import { resolveCompanyBrand } from '@/lib/brand-extract';
@@ -35,6 +35,11 @@ export async function POST(req: Request, ctx: Ctx) {
   const companyUrl = typeof body.companyUrl === 'string' ? body.companyUrl.trim() : '';
   const market = body.market === 'intl' ? 'intl' : 'dach';
   const showContactDetails = body.showContactDetails === true;
+  // IDs der im /new-Formular hochgeladenen Bilder (user_document, kind='image') — genau diese
+  // fließen als Galerie in die Website (kein Bleed aus früheren Bewerbungen).
+  const imageDocIds = Array.isArray(body.imageDocIds)
+    ? body.imageDocIds.filter((x): x is string => typeof x === 'string').slice(0, 12)
+    : [];
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream<Uint8Array>({
@@ -120,6 +125,36 @@ export async function POST(req: Request, ctx: Ctx) {
           }
         }
 
+        // 2d) Selbst-hochgeladene Bilder: genau die im Formular gewählten (imageDocIds), Owner-geprüft,
+        //     öffentliche URL → Galerie (slot 'section_imagery'). Reihenfolge wie hochgeladen.
+        let uploadedMedia: MediaRef[] | undefined;
+        if (imageDocIds.length > 0) {
+          const { data: imgDocs } = await supabase
+            .from('user_document')
+            .select('id, bucket, path, file_name, content_type')
+            .eq('user_id', userId)
+            .eq('kind', 'image')
+            .in('id', imageDocIds);
+          const byId = new Map((imgDocs ?? []).map((d) => [d.id as string, d]));
+          const refs: MediaRef[] = [];
+          for (const docId of imageDocIds) {
+            const d = byId.get(docId);
+            if (!d) continue;
+            const { data: pub } = supabase.storage.from(d.bucket).getPublicUrl(d.path);
+            if (pub?.publicUrl) {
+              refs.push({
+                slot: 'section_imagery',
+                kind: 'image',
+                url: pub.publicUrl,
+                caption: d.file_name ?? undefined,
+                alt: d.file_name ?? undefined,
+                mimeType: d.content_type ?? undefined,
+              });
+            }
+          }
+          if (refs.length > 0) uploadedMedia = refs;
+        }
+
         // 3) Generierung mit Live-Fortschritt.
         const result = await applicationService.generate(userId, id, {
           language,
@@ -130,6 +165,7 @@ export async function POST(req: Request, ctx: Ctx) {
           market,
           showContactDetails,
           selfIntro,
+          media: uploadedMedia,
           onProgress: (p) => send({ type: 'progress', ...p }),
         });
 

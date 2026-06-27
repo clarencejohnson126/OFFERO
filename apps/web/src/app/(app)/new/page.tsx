@@ -54,6 +54,8 @@ export default function NewApplicationPage() {
   const [companyUrl, setCompanyUrl] = useState('');
   const [template, setTemplate] = useState('aurora');
   const [showContactDetails, setShowContactDetails] = useState(false);
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [intro, setIntro] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [needsProfile, setNeedsProfile] = useState(false);
@@ -89,6 +91,28 @@ export default function NewApplicationPage() {
     setBusy(true);
     setProgress({ pct: 3, label: 'Starte…' });
     try {
+      // Medien VOR der Generierung hochladen (fließen dann in die Website). Best effort:
+      // ein fehlgeschlagener Upload blockiert die Generierung nicht.
+      const imageDocIds: string[] = [];
+      if (photos.length > 0 || intro) {
+        setProgress({ pct: 5, label: 'Lade Medien…' });
+        for (const ph of photos.slice(0, 12)) {
+          try {
+            const r = (await api.uploadDocument(ph, 'image')) as { document: { id: string } };
+            if (r?.document?.id) imageDocIds.push(r.document.id);
+          } catch {
+            /* einzelner Upload-Fehler ignoriert */
+          }
+        }
+        if (intro) {
+          try {
+            await api.uploadDocument(intro, 'video');
+          } catch {
+            /* Intro-Upload-Fehler ignoriert */
+          }
+        }
+      }
+
       const created = (await api.createApplication({
         jobUrl: isLink ? j : undefined,
         jobText: isLink ? undefined : j,
@@ -109,6 +133,7 @@ export default function NewApplicationPage() {
           companyUrl: companyUrl.trim() || undefined,
           market: language === 'en' ? 'intl' : 'dach',
           showContactDetails,
+          imageDocIds: imageDocIds.length > 0 ? imageDocIds : undefined,
         },
         (ev) => {
           const p = progressFor(ev);
@@ -267,6 +292,41 @@ export default function NewApplicationPage() {
               </span>
             </span>
           </label>
+        </div>
+
+        <div className="rounded-lg border border-line bg-bg-soft p-3.5">
+          <div className="text-[13px] font-medium text-fg">
+            Fotos &amp; Intro-Video <span className="text-faint">(optional)</span>
+          </div>
+          <p className="mt-0.5 text-xs text-muted">
+            Eigene Fotos erscheinen als Galerie auf der Website; ein kurzes Intro-Video oder -Audio
+            wird eingebettet. (KI-generierte Bilder folgen.)
+          </p>
+          <div className="mt-3 flex flex-col gap-3">
+            <label className="block text-xs text-fg-soft">
+              Fotos (max. 12)
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/gif"
+                multiple
+                onChange={(e) => setPhotos(Array.from(e.target.files ?? []))}
+                className="mt-1 block w-full text-xs text-muted file:mr-3 file:rounded-md file:border file:border-line file:bg-bg file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-fg hover:file:border-line-strong"
+              />
+              {photos.length > 0 && (
+                <span className="mt-1 block text-xs text-brand">{photos.length} Foto(s) gewählt</span>
+              )}
+            </label>
+            <label className="block text-xs text-fg-soft">
+              Intro-Video oder -Audio
+              <input
+                type="file"
+                accept="video/mp4,audio/mpeg,audio/mp4,audio/wav,audio/webm,audio/ogg"
+                onChange={(e) => setIntro(e.target.files?.[0] ?? null)}
+                className="mt-1 block w-full text-xs text-muted file:mr-3 file:rounded-md file:border file:border-line file:bg-bg file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-fg hover:file:border-line-strong"
+              />
+              {intro && <span className="mt-1 block truncate text-xs text-brand">{intro.name}</span>}
+            </label>
+          </div>
         </div>
 
         <div className="space-y-3 pt-1">

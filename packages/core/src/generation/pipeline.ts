@@ -3,6 +3,7 @@ import type { TaskKind } from '../ai/tasks';
 import type {
   ApplicationContent,
   Brand,
+  MediaRef,
   ProofLink,
   Section,
   SelfIntro,
@@ -44,6 +45,8 @@ export interface GenerationInput {
   showContactDetails?: boolean;
   /** Echtes, selbst aufgenommenes Intro (Video/Audio) — vom Aufrufer aus Uploads gebaut. */
   selfIntro?: SelfIntro;
+  /** Selbst-hochgeladene Bilder (vom Aufrufer aus Uploads gebaut) → content.media. */
+  media?: MediaRef[];
   /** Ton des Integritäts-Badges (ADR 0012 §5). Default 'confident'. */
   integrityTone?: 'confident' | 'playful' | 'minimal';
 }
@@ -182,6 +185,12 @@ export class GenerationPipeline {
 
     // Echtes, selbst aufgenommenes Intro (vom Aufrufer aus Uploads gebaut).
     if (input.selfIntro) content.selfIntro = input.selfIntro;
+
+    // Selbst-hochgeladene Bilder (vom Aufrufer aus Uploads gebaut) → Galerie auf der Website.
+    // Nur Refs mit echter (öffentlicher) URL; KEINE KI-Generierung hier (das ist Phase B).
+    if (input.media?.length) {
+      content.media = input.media.filter((m) => typeof m.url === 'string' && m.url.length > 0);
+    }
 
     // Integritäts-Badge (ADR 0012 §5): IMMER gesetzt, deterministisch — kein LLM.
     // Sichtbarkeit steuert der Nutzer später im Editor; Default = sichtbar.

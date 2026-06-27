@@ -82,6 +82,8 @@ export const api = {
       // Trust-System / Meta (ADR 0012)
       market?: 'dach' | 'intl';
       showContactDetails?: boolean;
+      /** IDs der vorab hochgeladenen Bilder (user_document, kind='image') → Galerie. */
+      imageDocIds?: string[];
     },
     onEvent: (ev: GenStreamEvent) => void,
   ): Promise<void> => {

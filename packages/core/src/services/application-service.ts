@@ -1,5 +1,5 @@
 import { CreditService } from '../billing/credit-service';
-import type { ApplicationContent, Brand, SelfIntro } from '../domain/content-schema';
+import type { ApplicationContent, Brand, MediaRef, SelfIntro } from '../domain/content-schema';
 import type { Application, GenerationVersion } from '../domain/entities';
 import { errors } from '../domain/errors';
 import type { Json } from '../domain/json';
@@ -33,6 +33,8 @@ export interface GenerateOptions {
   showContactDetails?: boolean;
   /** Echtes Selbst-Intro (Video/Audio), vom Aufrufer aus Uploads gebaut. */
   selfIntro?: SelfIntro;
+  /** Selbst-hochgeladene Bilder (vom Aufrufer aus Uploads gebaut) → fließen in content.media. */
+  media?: MediaRef[];
   /** Live-Fortschritts-Callback (echter Ladebalken). */
   onProgress?: OnProgress;
 }
@@ -140,6 +142,7 @@ export class ApplicationService {
           noindex: opts.noindex,
           showContactDetails: opts.showContactDetails,
           selfIntro: opts.selfIntro,
+          media: opts.media,
         },
         opts.onProgress,
       );

@@ -23,7 +23,9 @@ from datetime import date
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ENVP = ROOT / "apps/web/.env.local"
-API = "http://localhost:3001/api/v1"
+# Basis-URL konfigurierbar: lokal (Default) oder Cloud via OFFERO_BASE=https://offero-five.vercel.app
+BASE = __import__("os").environ.get("OFFERO_BASE", "http://localhost:3001").rstrip("/")
+API = f"{BASE}/api/v1"
 EMAIL, PW = "tester@offero.local", "Test-Pass-123!"
 
 SAMPLE_JOB = (
@@ -221,7 +223,7 @@ def main():
     elif elapsed > 40:
         print(f"⚠️  Laufzeit {elapsed}s > 40s — leicht ueber Erwartung")
 
-    site = f"http://localhost:3001/p/{slug}"
+    site = f"{BASE}/p/{slug}"
     print(f"\n  >>> {site}\n")
     if not no_open:
         try:

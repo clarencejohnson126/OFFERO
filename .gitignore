@@ -54,3 +54,4 @@ assets/**/*.mp4
 /design-refs/
 /direction-mockups/
 /concepts/
+.vercel

@@ -1,0 +1,33 @@
+# Vercel lädt vom Repo-Root hoch (Monorepo, Root Directory = apps/web).
+# Hier alles ausschließen, was der Build NICHT braucht — sonst werden GB hochgeladen.
+node_modules
+**/node_modules
+.git
+.next
+**/.next
+.turbo
+**/.turbo
+
+# Schwester-Projekte / vendored Tools (nicht Teil der Offero-App)
+tools
+more-nutrition-clone
+offero-landing
+offero-notion
+offero-product
+
+# Lokale Agent-/Tool-Konfiguration & Secrets
+.claude
+.agents
+.codex
+.research.env
+.env
+.env.*
+
+# Design-/Doku-Material (build-irrelevant)
+design-refs
+direction-mockups
+concepts
+docs
+assets
+*.log
+*.png

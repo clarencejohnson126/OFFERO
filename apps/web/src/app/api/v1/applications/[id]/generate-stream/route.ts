@@ -5,6 +5,11 @@ import { resolveCompanyBrand } from '@/lib/brand-extract';
 import { getServerContainer } from '@/lib/container';
 import { fetchJobText } from '@/lib/fetch-job';
 
+// Vercel-Funktions-Timeout: Generierung (API-Backend, Scrape + parallele Sektionen) kann >30s dauern.
+// Hobby cappt auf 60s; auf Pro hier auf bis zu 300 erhöhen. Streaming-Route → immer dynamisch.
+export const maxDuration = 60;
+export const dynamic = 'force-dynamic';
+
 type Ctx = { params: Promise<{ id: string }> };
 
 // POST /api/v1/applications/:id/generate-stream — wie /generate, aber als NDJSON-Stream mit

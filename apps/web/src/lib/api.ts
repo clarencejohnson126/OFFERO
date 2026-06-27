@@ -117,6 +117,10 @@ export const api = {
     flush(buf);
   },
 
+  // KI-Bilder: erzeugt bis zu 5 thematische Bilder und hängt sie an die Bewerbung (content.media).
+  generateImages: (id: string, count: number) =>
+    request('POST', `/api/v1/applications/${id}/images`, { count }),
+
   // View-Analytics (Eigentümer) + Outcome-Events (Moat-Daten, ADR 0012 §7).
   getAnalytics: (id: string) => request('GET', `/api/v1/applications/${id}/analytics`),
   recordOutcome: (id: string, status: string, note?: string) =>

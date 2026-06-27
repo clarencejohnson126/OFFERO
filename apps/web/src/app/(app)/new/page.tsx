@@ -56,6 +56,9 @@ export default function NewApplicationPage() {
   const [showContactDetails, setShowContactDetails] = useState(false);
   const [photos, setPhotos] = useState<File[]>([]);
   const [intro, setIntro] = useState<File | null>(null);
+  const [genImages, setGenImages] = useState(false);
+  const [imageCount, setImageCount] = useState(3);
+  const [remotionVideo, setRemotionVideo] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState('');
   const [needsProfile, setNeedsProfile] = useState(false);
@@ -148,6 +151,17 @@ export default function NewApplicationPage() {
       );
       if (streamError) throw new Error((streamError as { message: string }).message);
       if (!slug) throw new Error('Generierung ohne Ergebnis — bitte erneut versuchen.');
+
+      // KI-Bilder als separater Schritt (eigenes Zeitbudget) — hängen sich an die Website an.
+      if (genImages) {
+        setProgress({ pct: 99, label: `Erzeuge ${imageCount} KI-Bild(er)…` });
+        try {
+          await api.generateImages(created.application.id, imageCount);
+        } catch {
+          /* Bilder sind optional — ein Fehler blockiert die fertige Bewerbung nicht. */
+        }
+      }
+
       setResult({ id: created.application.id, slug, sections });
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Fehler bei der Generierung.';
@@ -329,6 +343,59 @@ export default function NewApplicationPage() {
           </div>
         </div>
 
+        <div className="rounded-lg border border-line bg-bg-soft p-3.5">
+          <div className="text-[13px] font-medium text-fg">
+            KI-Medien <span className="text-faint">(optional)</span>
+          </div>
+          <label className="mt-2.5 flex cursor-pointer items-start gap-2.5">
+            <input
+              type="checkbox"
+              checked={genImages}
+              onChange={(e) => setGenImages(e.target.checked)}
+              className="mt-0.5 size-4 accent-[#d9912f]"
+            />
+            <span className="text-sm">
+              <span className="font-medium text-fg">KI-Bilder generieren</span>
+              <span className="mt-0.5 block text-xs text-muted">
+                Abstrakte, zur Stelle passende Bildwelt für Hero &amp; Sektionen (keine Personen, kein
+                Text). Dauert ein paar Sekunden extra.
+              </span>
+            </span>
+          </label>
+          {genImages && (
+            <div className="mt-2 flex items-center gap-2 pl-7 text-xs text-fg-soft">
+              Anzahl:
+              <select
+                value={imageCount}
+                onChange={(e) => setImageCount(Number(e.target.value))}
+                className="h-8 rounded-md border border-line bg-bg px-2 text-sm text-fg"
+              >
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+              <span className="text-faint">(max. 5)</span>
+            </div>
+          )}
+          <label className="mt-3 flex cursor-pointer items-start gap-2.5">
+            <input
+              type="checkbox"
+              checked={remotionVideo}
+              onChange={(e) => setRemotionVideo(e.target.checked)}
+              className="mt-0.5 size-4 accent-[#d9912f]"
+            />
+            <span className="text-sm">
+              <span className="font-medium text-fg">Remotion-Motion-Video</span>
+              <span className="mt-0.5 block text-xs text-muted">
+                Automatisch animiertes Vorstellungs-Video. <b>Braucht AWS-Setup</b> — in Vorbereitung,
+                rendert noch nicht.
+              </span>
+            </span>
+          </label>
+        </div>
+
         <div className="space-y-3 pt-1">
           <Button onClick={generate} disabled={busy} size="lg">
             {busy ? <Loader2 className="size-4 animate-spin" /> : <Sparkles className="size-4" />}
@@ -391,6 +458,12 @@ export default function NewApplicationPage() {
           <p className="text-sm text-muted">
             {result.sections.length} Sektionen: {result.sections.join(' · ')}
           </p>
+          {genImages && (
+            <p className="text-xs text-brand">✓ KI-Bilder hinzugefügt — auf der Website sichtbar.</p>
+          )}
+          {remotionVideo && (
+            <p className="text-xs text-muted">Remotion-Video: AWS-Setup ausstehend (kommt).</p>
+          )}
           <Link href={`/p/${result.slug}`} target="_blank" className="inline-block">
             <Button size="lg">
               Bewerbung ansehen <ArrowUpRight className="size-4" />

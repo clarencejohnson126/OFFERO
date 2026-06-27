@@ -5,6 +5,7 @@ import { ApplicationService, GenerationPipeline, ProfileService } from '@offero/
 import { ClaudeAIProvider } from './adapters/claude-ai-provider';
 import { ClaudeCliProvider } from './adapters/claude-cli-provider';
 import { OpenAIProvider } from './adapters/openai-ai-provider';
+import { OpenAIImageProvider } from './adapters/openai-image-provider';
 import { SupabaseRepository } from './adapters/supabase-repository';
 import { SupabaseStorage } from './adapters/supabase-storage';
 import { serverEnv } from './env';
@@ -34,7 +35,10 @@ function build() {
           : null;
   const pipeline = aiText ? new GenerationPipeline({ ai: aiText, repo }) : undefined;
   const applicationService = new ApplicationService(repo, pipeline);
-  return { supabase, repo, storage, profileService, applicationService, aiText };
+  // KI-Bild-Provider (hinter ImageProvider-Port): aktuell OpenAI gpt-image-1 (Key hat Budget).
+  // Gemini-swappbar, sobald ein gültiger GEMINI_API_KEY vorliegt (dann hier umschalten).
+  const images = env.openaiApiKey ? new OpenAIImageProvider(env.openaiApiKey) : undefined;
+  return { supabase, repo, storage, profileService, applicationService, aiText, images };
 }
 
 let container: ReturnType<typeof build> | null = null;

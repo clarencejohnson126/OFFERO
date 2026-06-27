@@ -1,4 +1,4 @@
-import type { Brand, MediaRef, SelfIntro } from '@offero/core';
+import type { Brand, MediaRef, SelfIntro, StorageBucket } from '@offero/core';
 
 import { authenticate } from '@/app/api/v1/_lib/auth';
 import { resolveCompanyBrand } from '@/lib/brand-extract';
@@ -52,7 +52,7 @@ export async function POST(req: Request, ctx: Ctx) {
         }
       };
       try {
-        const { applicationService, aiText, supabase } = getServerContainer();
+        const { applicationService, aiText, supabase, storage } = getServerContainer();
         const app = await applicationService.get(userId, id);
 
         // 1) Scrape (echter Stand): nur, wenn kein eingefügter Text vorliegt.
@@ -113,12 +113,13 @@ export async function POST(req: Request, ctx: Ctx) {
           .limit(1);
         const introDoc = introDocs?.[0];
         if (introDoc) {
-          const { data: pub } = supabase.storage.from(introDoc.bucket).getPublicUrl(introDoc.path);
-          if (pub?.publicUrl) {
+          // publicUrl kennt das offero--Bucket-Mapping (introDoc.bucket ist der logische Name).
+          const url = storage.publicUrl({ bucket: introDoc.bucket as StorageBucket, path: introDoc.path });
+          if (url) {
             const isAudio = (introDoc.content_type ?? '').startsWith('audio/');
             selfIntro = {
               kind: isAudio ? 'audio' : 'video',
-              url: pub.publicUrl,
+              url,
               mimeType: introDoc.content_type ?? undefined,
               caption: introDoc.file_name ?? undefined,
             };
@@ -140,12 +141,12 @@ export async function POST(req: Request, ctx: Ctx) {
           for (const docId of imageDocIds) {
             const d = byId.get(docId);
             if (!d) continue;
-            const { data: pub } = supabase.storage.from(d.bucket).getPublicUrl(d.path);
-            if (pub?.publicUrl) {
+            const url = storage.publicUrl({ bucket: d.bucket as StorageBucket, path: d.path });
+            if (url) {
               refs.push({
                 slot: 'section_imagery',
                 kind: 'image',
-                url: pub.publicUrl,
+                url,
                 caption: d.file_name ?? undefined,
                 alt: d.file_name ?? undefined,
                 mimeType: d.content_type ?? undefined,

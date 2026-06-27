@@ -31,6 +31,10 @@ export class SupabaseStorage implements Storage {
     return data.signedUrl;
   }
 
+  publicUrl(ref: StorageRef): string {
+    return this.db.storage.from(physBucket(ref.bucket)).getPublicUrl(ref.path).data.publicUrl;
+  }
+
   async download(ref: StorageRef): Promise<Uint8Array> {
     const { data, error } = await this.db.storage.from(physBucket(ref.bucket)).download(ref.path);
     if (error || !data) throw errors.internal(error?.message ?? 'Download fehlgeschlagen');

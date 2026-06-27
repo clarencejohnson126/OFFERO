@@ -15,8 +15,13 @@ export interface ServerEnv {
   serviceRoleKey: string;
   dbSchema: string;
   anthropicApiKey: string;
-  /** KI-Backend: 'api' (Anthropic-API, Produktion) oder 'cli' (lokale claude-CLI/Subscription, Test). */
-  aiBackend: 'api' | 'cli';
+  /**
+   * KI-Text-Backend (Constitution Art. IV.2: extensibel, kein Provider-Lock):
+   * 'api' (Anthropic-API, Produktionsstandard) · 'cli' (lokale claude-CLI/Subscription, nur lokal) ·
+   * 'openai' (OpenAI als Stopgap, wenn Anthropic-Budget fehlt). Umschalten = reine Env-Änderung.
+   */
+  aiBackend: 'api' | 'cli' | 'openai';
+  openaiApiKey: string;
   geminiApiKey: string;
   stripeSecretKey: string;
   stripeWebhookSecret: string;
@@ -27,11 +32,13 @@ export function serverEnv(): ServerEnv {
   if (!serviceRoleKey) {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY fehlt (.env.local).');
   }
+  const backend = process.env.AI_BACKEND;
   return {
     serviceRoleKey,
     dbSchema: OFFERO_SCHEMA,
     anthropicApiKey: process.env.ANTHROPIC_API_KEY ?? '',
-    aiBackend: process.env.AI_BACKEND === 'cli' ? 'cli' : 'api',
+    aiBackend: backend === 'cli' ? 'cli' : backend === 'openai' ? 'openai' : 'api',
+    openaiApiKey: process.env.OPENAI_API_KEY ?? '',
     geminiApiKey: process.env.GEMINI_API_KEY ?? '',
     stripeSecretKey: process.env.STRIPE_SECRET_KEY ?? '',
     stripeWebhookSecret: process.env.STRIPE_WEBHOOK_SECRET ?? '',

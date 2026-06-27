@@ -4,6 +4,7 @@ import { ApplicationService, GenerationPipeline, ProfileService } from '@offero/
 
 import { ClaudeAIProvider } from './adapters/claude-ai-provider';
 import { ClaudeCliProvider } from './adapters/claude-cli-provider';
+import { OpenAIProvider } from './adapters/openai-ai-provider';
 import { SupabaseRepository } from './adapters/supabase-repository';
 import { SupabaseStorage } from './adapters/supabase-storage';
 import { serverEnv } from './env';
@@ -18,14 +19,19 @@ function build() {
   const repo = new SupabaseRepository(supabase);
   const storage = new SupabaseStorage(supabase);
   const profileService = new ProfileService(repo);
-  // KI-Backend wählbar: 'cli' = lokale claude-CLI auf der Subscription (Test, keine API-Token),
-  // 'api' = Anthropic-API-Key (Produktion). Siehe AI_BACKEND in .env.local.
+  // KI-Text-Backend wählbar (AI_BACKEND): 'cli' = lokale claude-CLI/Subscription (nur lokal, kein
+  // API-Token) · 'openai' = OpenAI-Stopgap (wenn Anthropic-Budget fehlt) · sonst 'api' = Anthropic
+  // (Produktionsstandard). Alle hinter demselben AIProvider-Port — Wechsel ohne Feature-Code-Änderung.
   const aiText =
     env.aiBackend === 'cli'
       ? new ClaudeCliProvider()
-      : env.anthropicApiKey
-        ? new ClaudeAIProvider(env.anthropicApiKey)
-        : null;
+      : env.aiBackend === 'openai'
+        ? env.openaiApiKey
+          ? new OpenAIProvider(env.openaiApiKey)
+          : null
+        : env.anthropicApiKey
+          ? new ClaudeAIProvider(env.anthropicApiKey)
+          : null;
   const pipeline = aiText ? new GenerationPipeline({ ai: aiText, repo }) : undefined;
   const applicationService = new ApplicationService(repo, pipeline);
   return { supabase, repo, storage, profileService, applicationService, aiText };

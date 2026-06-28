@@ -35,6 +35,8 @@ export interface GenerateOptions {
   selfIntro?: SelfIntro;
   /** Selbst-hochgeladene Bilder (vom Aufrufer aus Uploads gebaut) → fließen in content.media. */
   media?: MediaRef[];
+  /** Animiertes Remotion-Intro live einbetten (opt-in aus dem Formular). */
+  motionIntro?: boolean;
   /** Live-Fortschritts-Callback (echter Ladebalken). */
   onProgress?: OnProgress;
 }
@@ -143,6 +145,7 @@ export class ApplicationService {
           showContactDetails: opts.showContactDetails,
           selfIntro: opts.selfIntro,
           media: opts.media,
+          motionIntro: opts.motionIntro,
         },
         opts.onProgress,
       );

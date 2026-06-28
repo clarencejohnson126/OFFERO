@@ -71,7 +71,7 @@ const FIXTURE: ApplicationContent = {
     headline: '10 Jahre KI-Engineering, jetzt mit Agentic-Fokus.',
     points: ['Liefert Produktion', 'Ehrliche Einordnung'],
   },
-  meta: { market: 'dach', noindex: true, showContactDetails: false },
+  meta: { market: 'dach', noindex: true, showContactDetails: false, motionIntro: false },
 };
 
 describe('buildAtsModel', () => {

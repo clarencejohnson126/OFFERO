@@ -16,6 +16,7 @@
     "@offero/api-client": "workspace:*",
     "@offero/core": "workspace:*",
     "@offero/ui": "workspace:*",
+    "@remotion/player": "^4.0.484",
     "@supabase/supabase-js": "^2.47.10",
     "clsx": "^2.1.1",
     "docx": "^9.0.2",
@@ -25,6 +26,7 @@
     "pdf-lib": "^1.17.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "remotion": "^4.0.484",
     "server-only": "^0.0.1",
     "tailwind-merge": "^3.6.0",
     "unpdf": "^1.6.2"

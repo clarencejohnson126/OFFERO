@@ -137,6 +137,7 @@ export default function NewApplicationPage() {
           market: language === 'en' ? 'intl' : 'dach',
           showContactDetails,
           imageDocIds: imageDocIds.length > 0 ? imageDocIds : undefined,
+          motionIntro: remotionVideo,
         },
         (ev) => {
           const p = progressFor(ev);
@@ -387,10 +388,10 @@ export default function NewApplicationPage() {
               className="mt-0.5 size-4 accent-[#d9912f]"
             />
             <span className="text-sm">
-              <span className="font-medium text-fg">Remotion-Motion-Video</span>
+              <span className="font-medium text-fg">Remotion-Motion-Intro</span>
               <span className="mt-0.5 block text-xs text-muted">
-                Automatisch animiertes Vorstellungs-Video. <b>Braucht AWS-Setup</b> — in Vorbereitung,
-                rendert noch nicht.
+                Animiertes Intro (Name, Rolle, Schlagworte, Branding), das <b>live auf der Seite</b>{' '}
+                abspielt. Kein Download — läuft direkt im Browser.
               </span>
             </span>
           </label>
@@ -462,7 +463,7 @@ export default function NewApplicationPage() {
             <p className="text-xs text-brand">✓ KI-Bilder hinzugefügt — auf der Website sichtbar.</p>
           )}
           {remotionVideo && (
-            <p className="text-xs text-muted">Remotion-Video: AWS-Setup ausstehend (kommt).</p>
+            <p className="text-xs text-brand">✓ Motion-Intro eingebettet — spielt auf der Seite.</p>
           )}
           <Link href={`/p/${result.slug}`} target="_blank" className="inline-block">
             <Button size="lg">

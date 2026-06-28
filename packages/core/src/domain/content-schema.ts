@@ -184,6 +184,8 @@ export const contentMetaSchema = z.object({
   noindex: z.boolean().default(true),
   /** Telefon/Adresse öffentlich zeigen — Default AUS (opt-in). E-Mail bleibt erlaubt. */
   showContactDetails: z.boolean().default(false),
+  /** Animiertes Remotion-Intro auf der Seite einbetten (live, @remotion/player). Opt-in. */
+  motionIntro: z.boolean().default(false),
 });
 export type ContentMeta = z.infer<typeof contentMetaSchema>;
 

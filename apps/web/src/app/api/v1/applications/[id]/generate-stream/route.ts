@@ -35,6 +35,7 @@ export async function POST(req: Request, ctx: Ctx) {
   const companyUrl = typeof body.companyUrl === 'string' ? body.companyUrl.trim() : '';
   const market = body.market === 'intl' ? 'intl' : 'dach';
   const showContactDetails = body.showContactDetails === true;
+  const motionIntro = body.motionIntro === true; // animiertes Remotion-Intro einbetten (opt-in)
   // IDs der im /new-Formular hochgeladenen Bilder (user_document, kind='image') — genau diese
   // fließen als Galerie in die Website (kein Bleed aus früheren Bewerbungen).
   const imageDocIds = Array.isArray(body.imageDocIds)
@@ -167,6 +168,7 @@ export async function POST(req: Request, ctx: Ctx) {
           showContactDetails,
           selfIntro,
           media: uploadedMedia,
+          motionIntro,
           onProgress: (p) => send({ type: 'progress', ...p }),
         });
 

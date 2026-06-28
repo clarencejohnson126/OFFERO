@@ -84,6 +84,8 @@ export const api = {
       showContactDetails?: boolean;
       /** IDs der vorab hochgeladenen Bilder (user_document, kind='image') → Galerie. */
       imageDocIds?: string[];
+      /** Animiertes Remotion-Intro live auf der Seite einbetten. */
+      motionIntro?: boolean;
     },
     onEvent: (ev: GenStreamEvent) => void,
   ): Promise<void> => {

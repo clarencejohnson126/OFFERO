@@ -101,7 +101,7 @@ describe('buildJudgeMessages — Profil landet im Ehrlichkeits-Block', () => {
     sections: [],
     media: [],
     proofLinks: [],
-    meta: { market: 'dach', noindex: true, showContactDetails: false },
+    meta: { market: 'dach', noindex: true, showContactDetails: false, motionIntro: false },
   };
 
   // Eindeutiger Profil-Marker, der nirgends sonst im Prompt vorkommt.

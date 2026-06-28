@@ -47,6 +47,8 @@ export interface GenerationInput {
   selfIntro?: SelfIntro;
   /** Selbst-hochgeladene Bilder (vom Aufrufer aus Uploads gebaut) → content.media. */
   media?: MediaRef[];
+  /** Animiertes Remotion-Intro (live, @remotion/player) auf der Seite einbetten. Opt-in. */
+  motionIntro?: boolean;
   /** Ton des Integritäts-Badges (ADR 0012 §5). Default 'confident'. */
   integrityTone?: 'confident' | 'playful' | 'minimal';
 }
@@ -167,7 +169,12 @@ export class GenerationPipeline {
     // ── Trust-System (ADR 0012): deterministisch, KEIN LLM → schnell, gratis, halluzinationsfrei ──
     const market = input.market ?? 'dach';
     const showContact = input.showContactDetails ?? false;
-    content.meta = { market, noindex: input.noindex ?? true, showContactDetails: showContact };
+    content.meta = {
+      market,
+      noindex: input.noindex ?? true,
+      showContactDetails: showContact,
+      motionIntro: input.motionIntro ?? false,
+    };
 
     // PII-Default: Telefon/Adresse NICHT öffentlich, außer ausdrücklich freigegeben (Task #35).
     if (!showContact) {

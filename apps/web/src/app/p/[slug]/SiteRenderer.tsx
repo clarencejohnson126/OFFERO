@@ -1,5 +1,6 @@
 import type { ApplicationContent, MediaRef, Section } from '@offero/core';
 
+import { MotionIntro } from './MotionIntro';
 import { SiteEffects } from './SiteEffects';
 import { splitMedia } from './templates/shared';
 
@@ -122,6 +123,26 @@ export function SiteRenderer({ content }: { content: ApplicationContent }) {
       {body.map((s, i) => (
         <Block key={i} section={s} index={i} />
       ))}
+
+      {content.meta?.motionIntro && hero && (
+        <section className="os-block os-soft">
+          <div className="os-wrap os-reveal">
+            <div className="os-eyebrow">Bewegtbild-Intro</div>
+            <h2 className="os-tldr-h" style={{ color: 'var(--ink)', marginBottom: 18 }}>
+              {hero.name} in Bewegung.
+            </h2>
+            <MotionIntro
+              name={hero.name}
+              role={hero.role}
+              eyebrow={hero.eyebrow}
+              pitch={hero.pitch}
+              chips={hero.chips}
+              primary={p.primary}
+              secondary={p.royal}
+            />
+          </div>
+        </section>
+      )}
 
       {selfIntro && <SelfIntro intro={selfIntro} />}
 
